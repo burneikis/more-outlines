@@ -6,7 +6,8 @@
 	"mixins": [
 	],
 	"client": [
-		"EntityMixin"
+		"EntityMixin",
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
