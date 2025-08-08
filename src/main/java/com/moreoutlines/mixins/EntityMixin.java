@@ -3,7 +3,6 @@ package com.moreoutlines.mixins;
 import com.moreoutlines.config.ModConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
