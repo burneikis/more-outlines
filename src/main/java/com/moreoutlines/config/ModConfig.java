@@ -165,6 +165,13 @@ public class ModConfig {
             selectedEntities.put(Identifier.of("minecraft:zombie"), new EntityOutlineConfig(false, 0xFF00FF00));
             selectedEntities.put(Identifier.of("minecraft:creeper"), new EntityOutlineConfig(false, 0xFFFF0000));
             selectedEntities.put(Identifier.of("minecraft:skeleton"), new EntityOutlineConfig(false, 0xFFFFFFFF));
+            selectedEntities.put(Identifier.of("minecraft:pig"), new EntityOutlineConfig(false, 0xFFFFB6C1));
+            
+            // Add boat entity selections - using correct entity types
+            selectedEntities.put(Identifier.of("minecraft:boat"), new EntityOutlineConfig(false, 0xFF8B4513));
+            selectedEntities.put(Identifier.of("minecraft:chest_boat"), new EntityOutlineConfig(false, 0xFF654321));
+            selectedEntities.put(Identifier.of("minecraft:bamboo_raft"), new EntityOutlineConfig(false, 0xFF7CFC00));
+            selectedEntities.put(Identifier.of("minecraft:bamboo_chest_raft"), new EntityOutlineConfig(false, 0xFF32CD32));
             
             // Add some default block selections
             selectedBlocks.put(Identifier.of("minecraft:diamond_ore"), new BlockOutlineConfig(false, 0xFF00FFFF));

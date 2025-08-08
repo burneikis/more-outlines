@@ -71,15 +71,63 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                 block = ((BlockItem) item).getBlock();
             }
             
-            // Check if there's a corresponding entity (for spawn eggs, etc.)
+            // Check if there's a corresponding entity (for spawn eggs, boat items, etc.)
             EntityType<?> entityType = null;
-            // For now, we'll skip automatic entity type detection for spawn eggs
-            // and let entities be handled separately
+            String itemName = itemId.getPath();
+            
+            // Map boat items to boat entities - each boat type has its own entity
+            if (itemName.equals("oak_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:oak_boat"));
+            } else if (itemName.equals("spruce_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:spruce_boat"));
+            } else if (itemName.equals("birch_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:birch_boat"));
+            } else if (itemName.equals("jungle_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:jungle_boat"));
+            } else if (itemName.equals("acacia_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:acacia_boat"));
+            } else if (itemName.equals("dark_oak_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:dark_oak_boat"));
+            } else if (itemName.equals("mangrove_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:mangrove_boat"));
+            } else if (itemName.equals("cherry_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:cherry_boat"));
+            } else if (itemName.equals("bamboo_raft")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:bamboo_raft"));
+            } else if (itemName.equals("oak_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:oak_chest_boat"));
+            } else if (itemName.equals("spruce_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:spruce_chest_boat"));
+            } else if (itemName.equals("birch_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:birch_chest_boat"));
+            } else if (itemName.equals("jungle_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:jungle_chest_boat"));
+            } else if (itemName.equals("acacia_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:acacia_chest_boat"));
+            } else if (itemName.equals("dark_oak_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:dark_oak_chest_boat"));
+            } else if (itemName.equals("mangrove_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:mangrove_chest_boat"));
+            } else if (itemName.equals("cherry_chest_boat")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:cherry_chest_boat"));
+            } else if (itemName.equals("bamboo_chest_raft")) {
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:bamboo_chest_raft"));
+            } else if (itemName.endsWith("_spawn_egg")) {
+                // Handle spawn eggs - map spawn egg items to their entities
+                String entityName = itemName.replace("_spawn_egg", "");
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:" + entityName));
+            }
             
             UnifiedEntry entry = new UnifiedEntry(itemId.toString(), item, block, entityType);
             String name = itemId.toString().toLowerCase();
             allResults.add(entry);
             addToPrefixTree(name, entry);
+            
+            // Mark the entity as processed if it was linked to this item
+            if (entityType != null) {
+                Identifier entityId = Registries.ENTITY_TYPE.getId(entityType);
+                processedIds.add(entityId);
+            }
         }
         
         // Process remaining blocks that don't have items
@@ -98,7 +146,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             addToPrefixTree(name, entry);
         }
         
-        // Process remaining entities that don't have spawn eggs
+        // Process remaining entities that don't have items or spawn eggs
         List<EntityType<?>> entities = Registries.ENTITY_TYPE.stream()
             .sorted((a, b) -> Registries.ENTITY_TYPE.getId(a).toString().compareTo(Registries.ENTITY_TYPE.getId(b).toString()))
             .collect(Collectors.toList());
