@@ -364,6 +364,10 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         int checkboxBaseX = entryStartX + 200; // This matches currentX = x + 200 in render method
         
         // Draw headers aligned with actual checkbox positions
+        // Name header - positioned over the name text area
+        int nameHeaderX = entryStartX + 24; // Matches currentX += 22; in render method
+        context.drawText(minecraft.textRenderer, "Name", nameHeaderX, headerY, 0xFFFFFFFF, false);
+        
         // Item header - centered over checkbox (16px wide)
         int itemHeaderX = checkboxBaseX + 8 - minecraft.textRenderer.getWidth("Item") / 2;
         context.drawText(minecraft.textRenderer, "Item", itemHeaderX, headerY, 0xFFFFFFFF, false);
