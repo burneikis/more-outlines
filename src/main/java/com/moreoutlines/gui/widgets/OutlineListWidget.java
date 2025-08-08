@@ -771,11 +771,14 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             
             int currentX = x + 2;
             
-            // Draw icon (item if available, otherwise block)
+            // Draw icon (item if available, otherwise block, otherwise entity)
             if (unifiedEntry.hasItem()) {
                 context.drawItem(new ItemStack(unifiedEntry.item), currentX, y + 2);
             } else if (unifiedEntry.hasBlock()) {
                 context.drawItem(new ItemStack(unifiedEntry.block), currentX, y + 2);
+            } else if (unifiedEntry.hasEntity()) {
+                // Render entity when no block/item is available
+                drawEntityIcon(context, unifiedEntry.entityType, currentX, y + 2, 16);
             }
             currentX += 22;
             
@@ -1071,5 +1074,28 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             }
         }
         return COLORS[0]; // Default to red
+    }
+    
+    // Entity rendering helper method
+    private static void drawEntityIcon(DrawContext context, EntityType<?> entityType, int x, int y, int size) {
+        // Always use the placeholder for entities in the list
+        drawEntityPlaceholder(context, x, y, size);
+    }
+    
+    private static void drawEntityPlaceholder(DrawContext context, int x, int y, int size) {
+        // Draw a simple placeholder icon for entities
+        // Fill with a semi-transparent background
+        context.fill(x, y, x + size, y + size, 0x80404040);
+        context.drawBorder(x, y, size, size, 0xFF666666);
+        
+        // Draw a simple "E" for Entity in the center
+        net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
+        String text = "E";
+        int textWidth = minecraft.textRenderer.getWidth(text);
+        int textHeight = minecraft.textRenderer.fontHeight;
+        int textX = x + (size - textWidth) / 2;
+        int textY = y + (size - textHeight) / 2;
+        
+        context.drawText(minecraft.textRenderer, text, textX, textY, 0xFFFFFFFF, false);
     }
 }
