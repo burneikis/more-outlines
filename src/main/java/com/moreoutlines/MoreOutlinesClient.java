@@ -1,5 +1,7 @@
 package com.moreoutlines;
 
+import com.moreoutlines.config.ConfigManager;
+import com.moreoutlines.config.ConfigUtil;
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.gui.ModConfigScreen;
 import com.moreoutlines.keybinds.ModKeybinds;
@@ -19,6 +21,13 @@ public class MoreOutlinesClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		instance = this;
+		
+		// Load configuration first
+		ConfigManager.loadConfig();
+		
+		// Validate configuration after loading
+		ConfigUtil.validateConfig();
+		ConfigUtil.logConfigStats();
 		
 		MoreOutlines.LOGGER.info("More Outlines client initialized!");
 		

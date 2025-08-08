@@ -35,8 +35,28 @@ public class ModConfig {
     
     private ModConfig() {}
     
+    /**
+     * Saves configuration to disk (delegated to ConfigManager).
+     */
+    private void saveConfig() {
+        // Don't save during batch operations
+        if (batchMode) {
+            return;
+        }
+        
+        // Use a separate class to avoid circular dependency issues during initialization
+        try {
+            Class.forName("com.moreoutlines.config.ConfigManager")
+                .getMethod("saveConfig")
+                .invoke(null);
+        } catch (Exception e) {
+            // Silently ignore if ConfigManager is not available (during early initialization)
+        }
+    }
+    
     public void toggleOutlinesEnabled() {
         outlinesEnabled = !outlinesEnabled;
+        saveConfig();
     }
     
     /**
@@ -49,8 +69,9 @@ public class ModConfig {
         } else {
             config.enabled = !config.enabled;
         }
+        saveConfig();
     }
-    
+
     /**
      * Generic method to set color for any outline type.
      */
@@ -58,10 +79,9 @@ public class ModConfig {
         OutlineConfig config = selectionMap.get(id);
         if (config != null) {
             config.color = color;
+            saveConfig();
         }
-    }
-    
-    /**
+    }    /**
      * Generic method to check if an item is selected.
      */
     private boolean isSelected(Map<Identifier, OutlineConfig> selectionMap, Identifier id) {
@@ -124,5 +144,41 @@ public class ModConfig {
     
     public int getBlockColor(Identifier blockId) {
         return getColor(selectedBlocks, blockId);
+    }
+    
+    /**
+     * Sets the default color for new outline configurations.
+     * @param color The new default color
+     */
+    public void setDefaultColor(int color) {
+        this.defaultColor = color;
+        saveConfig();
+    }
+    
+    /**
+     * Manually saves the configuration to disk.
+     * Use this when making bulk changes or when you want to ensure config is saved.
+     */
+    public void saveConfigManually() {
+        saveConfig();
+    }
+    
+    // Batch operation support
+    private boolean batchMode = false;
+    
+    /**
+     * Starts batch mode - configuration changes won't be saved until endBatch() is called.
+     * Use this when making multiple configuration changes at once.
+     */
+    public void startBatch() {
+        batchMode = true;
+    }
+    
+    /**
+     * Ends batch mode and saves the configuration.
+     */
+    public void endBatch() {
+        batchMode = false;
+        saveConfig();
     }
 }

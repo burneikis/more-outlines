@@ -1,0 +1,26 @@
+{
+  "outlinesEnabled": false,
+  "defaultColor": -1,
+  "selectedItems": {
+    "minecraft:diamond": {
+      "enabled": true,
+      "color": -16711936
+    },
+    "minecraft:gold_ingot": {
+      "enabled": true,
+      "color": -256
+    }
+  },
+  "selectedEntities": {
+    "minecraft:cow": {
+      "enabled": true,
+      "color": -6746368
+    }
+  },
+  "selectedBlocks": {
+    "minecraft:diamond_ore": {
+      "enabled": true,
+      "color": -16711681
+    }
+  }
+}
