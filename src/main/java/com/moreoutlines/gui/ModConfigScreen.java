@@ -43,6 +43,16 @@ public class ModConfigScreen extends Screen {
         this.searchField.setChangedListener(this::onSearchChanged);
         this.addDrawableChild(this.searchField);
         
+        // Outlines enabled toggle button at top right
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.outlinesEnabled ? "ON" : "OFF")),
+                button -> {
+                    com.moreoutlines.config.ModConfig.INSTANCE.toggleOutlinesEnabled();
+                    button.setMessage(Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.outlinesEnabled ? "ON" : "OFF")));
+                })
+            .dimensions(this.width - 85, 6, 80, 20)
+            .build());
+        
         // Scrollable list
         this.list = new OutlineListWidget(this.client, this.width, this.height - margin * 2, margin, 25, convertTab(currentTab));
         this.addDrawableChild(this.list);
@@ -75,14 +85,14 @@ public class ModConfigScreen extends Screen {
         
         // Deselect all button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Deselect"),
+                Text.literal("All Off"),
                 button -> deselectAllVisible())
             .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 3, buttonY, buttonWidth, buttonHeight)
             .build());
         
         // Select all button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Select"),
+                Text.literal("All On"),
                 button -> selectAllVisible())
             .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 4, buttonY, buttonWidth, buttonHeight)
             .build());
