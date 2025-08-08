@@ -27,7 +27,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.registry.Registries;
@@ -434,17 +433,23 @@ public class ModConfigScreen extends Screen {
         switch (currentTab) {
             case ITEMS:
                 if (selectedItem != null) {
-                    ModConfig.INSTANCE.toggleItemSelection(selectedItem, ModConfig.INSTANCE.itemOutlineColor);
+                    // Use current color picker color instead of default color
+                    int currentColor = colorPicker != null ? colorPicker.getCurrentColor() : ModConfig.INSTANCE.itemOutlineColor;
+                    ModConfig.INSTANCE.toggleItemSelection(selectedItem, currentColor);
                 }
                 break;
             case ENTITIES:
                 if (selectedEntity != null) {
-                    ModConfig.INSTANCE.toggleEntitySelection(selectedEntity, ModConfig.INSTANCE.entityOutlineColor);
+                    // Use current color picker color instead of default color
+                    int currentColor = colorPicker != null ? colorPicker.getCurrentColor() : ModConfig.INSTANCE.entityOutlineColor;
+                    ModConfig.INSTANCE.toggleEntitySelection(selectedEntity, currentColor);
                 }
                 break;
             case BLOCKS:
                 if (selectedBlock != null) {
-                    ModConfig.INSTANCE.toggleBlockSelection(selectedBlock, ModConfig.INSTANCE.blockOutlineColor);
+                    // Use current color picker color instead of default color
+                    int currentColor = colorPicker != null ? colorPicker.getCurrentColor() : ModConfig.INSTANCE.blockOutlineColor;
+                    ModConfig.INSTANCE.toggleBlockSelection(selectedBlock, currentColor);
                 }
                 break;
         }

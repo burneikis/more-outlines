@@ -30,6 +30,14 @@ public class ColorPickerWidget extends ClickableWidget {
         this.selectedColor = color;
     }
     
+    /**
+     * Gets the currently selected color from the color picker.
+     * @return The selected color as an integer (ARGB format)
+     */
+    public int getCurrentColor() {
+        return this.selectedColor;
+    }
+    
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         // Render color picker background

@@ -3,8 +3,6 @@ package com.moreoutlines.config;
 import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 
 public class ModConfig {
     public static final ModConfig INSTANCE = new ModConfig();

@@ -1,7 +1,6 @@
 package com.moreoutlines.renderer;
 
 import com.moreoutlines.config.ModConfig;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import net.minecraft.registry.Registries;
 
 import java.util.List;
 import java.util.Map;
