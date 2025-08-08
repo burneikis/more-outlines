@@ -12,6 +12,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,19 +41,25 @@ public class WorldRendererMixin {
         // Always render normally first
         dispatcher.render(blockEntity, tickProgress, matrices, vertexConsumers);
         
-        // Only render outlines if enabled
-        if (ModConfig.INSTANCE.outlinesEnabled) {
-            OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
+        // Only render outlines if enabled AND the specific block entity type is selected
+        if (ModConfig.INSTANCE.outlinesEnabled && blockEntity != null) {
+            // Get the block entity's block type
+            Identifier blockId = Registries.BLOCK.getId(blockEntity.getCachedState().getBlock());
             
-            // Extract color components from config
-            int color = ModConfig.INSTANCE.defaultColor;
-            int red = (color >> 16) & 0xFF;
-            int green = (color >> 8) & 0xFF;
-            int blue = color & 0xFF;
-            int alpha = (color >> 24) & 0xFF;
-            
-            outlineProvider.setColor(red, green, blue, alpha);
-            dispatcher.render(blockEntity, tickProgress, matrices, outlineProvider);
+            // Only render outline if this specific block type is selected
+            if (ModConfig.INSTANCE.isBlockSelected(blockId)) {
+                OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
+                
+                // Get the color for this specific block type
+                int color = ModConfig.INSTANCE.getBlockColor(blockId);
+                int red = (color >> 16) & 0xFF;
+                int green = (color >> 8) & 0xFF;
+                int blue = color & 0xFF;
+                int alpha = (color >> 24) & 0xFF;
+                
+                outlineProvider.setColor(red, green, blue, alpha);
+                dispatcher.render(blockEntity, tickProgress, matrices, outlineProvider);
+            }
         }
     }
 
