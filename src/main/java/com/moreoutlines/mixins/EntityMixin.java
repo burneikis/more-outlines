@@ -4,6 +4,8 @@ import com.moreoutlines.config.ModConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,14 +22,34 @@ public class EntityMixin {
         
         Entity entity = (Entity) (Object) this;
         
-        if (ModConfig.INSTANCE.itemOutlines && entity instanceof ItemEntity) {
-            cir.setReturnValue(true);
+        // Handle item entities with specific item selection
+        if (entity instanceof ItemEntity itemEntity) {
+            // Check specific item selection first
+            Identifier itemId = Registries.ITEM.getId(itemEntity.getStack().getItem());
+            if (ModConfig.INSTANCE.isItemSelected(itemId)) {
+                cir.setReturnValue(true);
+                return;
+            }
+            
+            // Fall back to general item outlines toggle
+            if (ModConfig.INSTANCE.itemOutlines) {
+                cir.setReturnValue(true);
+            }
+            return;
         }
         
+        // Handle other entities with specific entity selection
+        Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
+        if (ModConfig.INSTANCE.isEntitySelected(entityId)) {
+            cir.setReturnValue(true);
+            return;
+        }
+        
+        // Fall back to general entity outlines toggle
         if (ModConfig.INSTANCE.entityOutlines) {
             if (entity instanceof LivingEntity) {
                 cir.setReturnValue(true);
-            } else if (!(entity instanceof ItemEntity)) {
+            } else {
                 cir.setReturnValue(true);
             }
         }

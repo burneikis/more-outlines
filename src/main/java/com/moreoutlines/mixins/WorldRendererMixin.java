@@ -2,7 +2,9 @@ package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.renderer.DiamondBlockOutlineRenderer;
+import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.DiamondBlockScanner;
+import com.moreoutlines.scanner.BlockSelectionScanner;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -87,6 +89,25 @@ public class WorldRendererMixin {
                 );
             }
         }
+        
+        // Render block selection outlines
+        if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty()) {
+            BlockSelectionScanner scanner = BlockSelectionScanner.getInstance();
+            if (!scanner.getTrackedBlocksByType().isEmpty()) {
+                
+                // Get the outline vertex consumer provider from the buffer builders
+                OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
+                
+                // Render our custom block selection outlines
+                BlockSelectionOutlineRenderer.renderBlockSelectionOutlines(
+                    matrices,
+                    camera,
+                    outlineProvider,
+                    this.world,
+                    scanner.getTrackedBlocksByType()
+                );
+            }
+        }
     }
 
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V"), index = 6)
@@ -95,7 +116,9 @@ public class WorldRendererMixin {
         return renderEntityOutline || 
                (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.blockEntityOutlines) ||
                (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.diamondBlockOutlines && 
-                !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty());
+                !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty()) ||
+               (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && 
+                !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty());
     }
 
     @Inject(method = "getEntitiesToRender", at = @At("RETURN"), cancellable = true)
@@ -104,7 +127,8 @@ public class WorldRendererMixin {
         // Force return true if any outlines are enabled to ensure proper rendering
         if (ModConfig.INSTANCE.outlinesEnabled && 
             (ModConfig.INSTANCE.blockEntityOutlines || 
-             (ModConfig.INSTANCE.diamondBlockOutlines && !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty()))) {
+             (ModConfig.INSTANCE.diamondBlockOutlines && !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty()) ||
+             (!ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty()))) {
             cir.setReturnValue(true);
         }
     }
