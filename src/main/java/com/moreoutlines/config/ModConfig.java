@@ -181,4 +181,28 @@ public class ModConfig {
         batchMode = false;
         saveConfig();
     }
+    
+    /**
+     * Checks if an identifier has any configuration entry (enabled or disabled).
+     * This helps determine if we should override default entity glow behavior.
+     */
+    public boolean hasItemConfig(net.minecraft.util.Identifier itemId) {
+        return selectedItems.containsKey(itemId);
+    }
+    
+    /**
+     * Checks if an identifier has any configuration entry (enabled or disabled).
+     * This helps determine if we should override default entity glow behavior.
+     */
+    public boolean hasEntityConfig(net.minecraft.util.Identifier entityId) {
+        return selectedEntities.containsKey(entityId);
+    }
+    
+    /**
+     * Checks if an identifier has any configuration entry (enabled or disabled).
+     * This helps determine if we should override default entity glow behavior.
+     */
+    public boolean hasBlockConfig(net.minecraft.util.Identifier blockId) {
+        return selectedBlocks.containsKey(blockId);
+    }
 }
