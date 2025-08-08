@@ -22,9 +22,6 @@ public class ModConfigScreen extends Screen {
     private OutlineListWidget list;
     private String searchText = "";
     
-    // Tab management
-    public enum Tab { ITEMS, ENTITIES, BLOCKS }
-    private Tab currentTab = Tab.ITEMS;
     
     public ModConfigScreen(Screen parent) {
         super(Text.literal("More Outlines Configuration"));
@@ -53,76 +50,42 @@ public class ModConfigScreen extends Screen {
             .dimensions(this.width - 85, 6, 80, 20)
             .build());
         
-        // Scrollable list
-        this.list = new OutlineListWidget(this.client, this.width, this.height - margin * 2, margin, 25, convertTab(currentTab));
+        // Scrollable list (leave extra space for column headers)
+        this.list = new OutlineListWidget(this.client, this.width, this.height - margin * 2 - 15, margin + 15, 25);
         this.addDrawableChild(this.list);
         
         // Bottom buttons
         int buttonWidth = 80;
         int buttonHeight = 20;
-        int numberOfButtons = 6; // Items, Entities, Blocks, Deselect, Select, Done
+        int numberOfButtons = 3; // All Items, All Entities, Done
         int buttonInterval = (this.width - numberOfButtons * buttonWidth) / (numberOfButtons + 1);
         int buttonY = this.height - 16 - (buttonHeight / 2);
         
-        // Tab selection buttons
+        // All Items button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(currentTab == Tab.ITEMS ? "Items*" : "Items"),
-                button -> switchToTab(Tab.ITEMS))
+                Text.literal("All Items"),
+                button -> toggleAllItems())
             .dimensions(buttonInterval, buttonY, buttonWidth, buttonHeight)
             .build());
-            
+        
+        // All Entities button
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(currentTab == Tab.ENTITIES ? "Entities*" : "Entities"),
-                button -> switchToTab(Tab.ENTITIES))
+                Text.literal("All Entities"),
+                button -> toggleAllEntities())
             .dimensions(buttonInterval + (buttonWidth + buttonInterval), buttonY, buttonWidth, buttonHeight)
-            .build());
-            
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(currentTab == Tab.BLOCKS ? "Blocks*" : "Blocks"),
-                button -> switchToTab(Tab.BLOCKS))
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 2, buttonY, buttonWidth, buttonHeight)
-            .build());
-        
-        // Deselect all button
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("All Off"),
-                button -> deselectAllVisible())
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 3, buttonY, buttonWidth, buttonHeight)
-            .build());
-        
-        // Select all button
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("All On"),
-                button -> selectAllVisible())
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 4, buttonY, buttonWidth, buttonHeight)
             .build());
             
         // Done button
         this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Done"),
                 button -> this.close())
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 5, buttonY, buttonWidth, buttonHeight)
+            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 2, buttonY, buttonWidth, buttonHeight)
             .build());
         
         this.setInitialFocus(this.searchField);
         this.onSearchChanged(this.searchField.getText());
     }
     
-    private OutlineListWidget.Tab convertTab(Tab tab) {
-        switch (tab) {
-            case ITEMS: return OutlineListWidget.Tab.ITEMS;
-            case ENTITIES: return OutlineListWidget.Tab.ENTITIES;
-            case BLOCKS: return OutlineListWidget.Tab.BLOCKS;
-            default: return OutlineListWidget.Tab.ITEMS;
-        }
-    }
-    
-    private void switchToTab(Tab tab) {
-        this.currentTab = tab;
-        // Reinitialize to update display
-        this.clearChildren();
-        this.init();
-    }
     
     private void onSearchChanged(String searchText) {
         this.searchText = searchText.toLowerCase().trim();
@@ -131,15 +94,15 @@ public class ModConfigScreen extends Screen {
         }
     }
     
-    private void selectAllVisible() {
+    private void toggleAllItems() {
         if (list != null) {
-            list.selectAllVisible();
+            list.toggleAllItems();
         }
     }
     
-    private void deselectAllVisible() {
+    private void toggleAllEntities() {
         if (list != null) {
-            list.deselectAllVisible();
+            list.toggleAllEntities();
         }
     }
     

@@ -16,19 +16,16 @@ import net.minecraft.item.Item;
 import net.minecraft.entity.EntityType;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.BlockItem;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineListWidget.Entry> {
-    public enum Tab { ITEMS, ENTITIES, BLOCKS }
+    private Map<String, List<UnifiedEntry>> searchCache = new HashMap<>();
     
-    private final Tab currentTab;
-    private Map<String, List<Object>> searchCache = new HashMap<>();
-    
-    public OutlineListWidget(net.minecraft.client.MinecraftClient client, int width, int height, int top, int itemHeight, Tab currentTab) {
+    public OutlineListWidget(net.minecraft.client.MinecraftClient client, int width, int height, int top, int itemHeight) {
         super(client, width, height, top, itemHeight);
-        this.currentTab = currentTab;
         initializeSearchCache();
         updateSearchResults("");
     }
@@ -37,26 +34,10 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         this.clearEntries();
         
         if (searchCache.containsKey(searchText)) {
-            List<Object> results = searchCache.get(searchText);
+            List<UnifiedEntry> results = searchCache.get(searchText);
             
-            for (Object obj : results) {
-                switch (currentTab) {
-                    case ITEMS:
-                        if (obj instanceof Item) {
-                            this.addEntry(new ItemEntry((Item) obj));
-                        }
-                        break;
-                    case ENTITIES:
-                        if (obj instanceof EntityType) {
-                            this.addEntry(new EntityEntry((EntityType<?>) obj));
-                        }
-                        break;
-                    case BLOCKS:
-                        if (obj instanceof Block) {
-                            this.addEntry(new BlockEntry((Block) obj));
-                        }
-                        break;
-                }
+            for (UnifiedEntry unifiedEntry : results) {
+                this.addEntry(new UnifiedItemEntry(unifiedEntry));
             }
         }
         
@@ -68,49 +49,73 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     private void initializeSearchCache() {
         searchCache.clear();
         
-        List<Object> allResults = new ArrayList<>();
+        List<UnifiedEntry> allResults = new ArrayList<>();
         searchCache.put("", allResults);
         
-        switch (currentTab) {
-            case ITEMS:
-                List<Item> items = Registries.ITEM.stream()
-                    .sorted((a, b) -> Registries.ITEM.getId(a).toString().compareTo(Registries.ITEM.getId(b).toString()))
-                    .collect(Collectors.toList());
-                
-                for (Item item : items) {
-                    String name = Registries.ITEM.getId(item).toString().toLowerCase();
-                    allResults.add(item);
-                    addToPrefixTree(name, item);
-                }
-                break;
-                
-            case ENTITIES:
-                List<EntityType<?>> entities = Registries.ENTITY_TYPE.stream()
-                    .sorted((a, b) -> Registries.ENTITY_TYPE.getId(a).toString().compareTo(Registries.ENTITY_TYPE.getId(b).toString()))
-                    .collect(Collectors.toList());
-                
-                for (EntityType<?> entity : entities) {
-                    String name = Registries.ENTITY_TYPE.getId(entity).toString().toLowerCase();
-                    allResults.add(entity);
-                    addToPrefixTree(name, entity);
-                }
-                break;
-                
-            case BLOCKS:
-                List<Block> blocks = Registries.BLOCK.stream()
-                    .sorted((a, b) -> Registries.BLOCK.getId(a).toString().compareTo(Registries.BLOCK.getId(b).toString()))
-                    .collect(Collectors.toList());
-                
-                for (Block block : blocks) {
-                    String name = Registries.BLOCK.getId(block).toString().toLowerCase();
-                    allResults.add(block);
-                    addToPrefixTree(name, block);
-                }
-                break;
+        // Create a set to track all unique identifiers
+        Set<Identifier> processedIds = new HashSet<>();
+        
+        // Process all items and find corresponding blocks/entities
+        List<Item> items = Registries.ITEM.stream()
+            .sorted((a, b) -> Registries.ITEM.getId(a).toString().compareTo(Registries.ITEM.getId(b).toString()))
+            .collect(Collectors.toList());
+            
+        for (Item item : items) {
+            Identifier itemId = Registries.ITEM.getId(item);
+            if (processedIds.contains(itemId)) continue;
+            processedIds.add(itemId);
+            
+            // Check if there's a corresponding block
+            Block block = null;
+            if (item instanceof BlockItem) {
+                block = ((BlockItem) item).getBlock();
+            }
+            
+            // Check if there's a corresponding entity (for spawn eggs, etc.)
+            EntityType<?> entityType = null;
+            // For now, we'll skip automatic entity type detection for spawn eggs
+            // and let entities be handled separately
+            
+            UnifiedEntry entry = new UnifiedEntry(itemId.toString(), item, block, entityType);
+            String name = itemId.toString().toLowerCase();
+            allResults.add(entry);
+            addToPrefixTree(name, entry);
+        }
+        
+        // Process remaining blocks that don't have items
+        List<Block> blocks = Registries.BLOCK.stream()
+            .sorted((a, b) -> Registries.BLOCK.getId(a).toString().compareTo(Registries.BLOCK.getId(b).toString()))
+            .collect(Collectors.toList());
+            
+        for (Block block : blocks) {
+            Identifier blockId = Registries.BLOCK.getId(block);
+            if (processedIds.contains(blockId)) continue;
+            processedIds.add(blockId);
+            
+            UnifiedEntry entry = new UnifiedEntry(blockId.toString(), null, block, null);
+            String name = blockId.toString().toLowerCase();
+            allResults.add(entry);
+            addToPrefixTree(name, entry);
+        }
+        
+        // Process remaining entities that don't have spawn eggs
+        List<EntityType<?>> entities = Registries.ENTITY_TYPE.stream()
+            .sorted((a, b) -> Registries.ENTITY_TYPE.getId(a).toString().compareTo(Registries.ENTITY_TYPE.getId(b).toString()))
+            .collect(Collectors.toList());
+            
+        for (EntityType<?> entity : entities) {
+            Identifier entityId = Registries.ENTITY_TYPE.getId(entity);
+            if (processedIds.contains(entityId)) continue;
+            processedIds.add(entityId);
+            
+            UnifiedEntry entry = new UnifiedEntry(entityId.toString(), null, null, entity);
+            String name = entityId.toString().toLowerCase();
+            allResults.add(entry);
+            addToPrefixTree(name, entry);
         }
     }
     
-    private void addToPrefixTree(String name, Object obj) {
+    private void addToPrefixTree(String name, UnifiedEntry entry) {
         List<String> prefixes = new ArrayList<>();
         prefixes.add("");
         
@@ -120,8 +125,8 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                 String prefix = prefixes.get(p) + character;
                 prefixes.set(p, prefix);
                 
-                List<Object> results = searchCache.computeIfAbsent(prefix, k -> new ArrayList<>());
-                results.add(obj);
+                List<UnifiedEntry> results = searchCache.computeIfAbsent(prefix, k -> new ArrayList<>());
+                results.add(entry);
             }
             
             if (Character.isWhitespace(character) || character == '_' || character == ':') {
@@ -142,13 +147,129 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
     }
     
+    public void toggleAllItems() {
+        boolean allItemsSelected = true;
+        int totalItems = 0;
+        
+        // Check if ALL items are currently selected
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasItem()) {
+                    totalItems++;
+                    if (!unifiedEntry.itemSelected) {
+                        allItemsSelected = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If no items exist, do nothing
+        if (totalItems == 0) return;
+        
+        // Toggle all items based on current state
+        // If ALL items are selected, deselect all; otherwise select all
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasItem()) {
+                    if (allItemsSelected) {
+                        // All items are selected, so turn them off
+                        if (unifiedEntry.itemSelected) {
+                            unifiedEntry.toggleItemSelection(false);
+                        }
+                    } else {
+                        // Not all items are selected, so turn them all on
+                        if (!unifiedEntry.itemSelected) {
+                            unifiedEntry.toggleItemSelection(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void toggleAllEntities() {
+        boolean allEntitiesSelected = true;
+        int totalEntities = 0;
+        
+        // Check if ALL entities are currently selected
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasEntity()) {
+                    totalEntities++;
+                    if (!unifiedEntry.entitySelected) {
+                        allEntitiesSelected = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If no entities exist, do nothing
+        if (totalEntities == 0) return;
+        
+        // Toggle all entities based on current state
+        // If ALL entities are selected, deselect all; otherwise select all
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasEntity()) {
+                    if (allEntitiesSelected) {
+                        // All entities are selected, so turn them off
+                        if (unifiedEntry.entitySelected) {
+                            unifiedEntry.toggleEntitySelection(false);
+                        }
+                    } else {
+                        // Not all entities are selected, so turn them all on
+                        if (!unifiedEntry.entitySelected) {
+                            unifiedEntry.toggleEntitySelection(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     @Override
     public int getRowWidth() {
-        return 350;
+        return 400;
     }
     
     protected int getScrollbarX() {
         return this.width - 6;
+    }
+    
+        @Override
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Call parent render method first for the list content
+        super.renderWidget(context, mouseX, mouseY, delta);
+        
+        // Draw column headers on top
+        net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
+        int headerY = this.getY() - 15;
+        
+        // Calculate the actual entry start position to match the entries
+        // AlwaysSelectedEntryListWidget centers the entry row within the widget bounds
+        int rowWidth = this.getRowWidth(); // 400
+        int leftMargin = Math.max(0, (this.width - rowWidth) / 2);
+        int entryStartX = this.getX() + leftMargin;
+        int checkboxBaseX = entryStartX + 200; // This matches currentX = x + 200 in render method
+        
+        // Draw headers aligned with actual checkbox positions
+        // Item header - centered over checkbox (16px wide)
+        int itemHeaderX = checkboxBaseX + 8 - minecraft.textRenderer.getWidth("Item") / 2;
+        context.drawText(minecraft.textRenderer, "Item", itemHeaderX, headerY, 0xFFFFFFFF, false);
+        
+        // Block header - centered over checkbox (50 pixels right of item checkbox)
+        int blockHeaderX = checkboxBaseX + 50 + 8 - minecraft.textRenderer.getWidth("Block") / 2;
+        context.drawText(minecraft.textRenderer, "Block", blockHeaderX, headerY, 0xFFFFFFFF, false);
+        
+        // Entity header - centered over checkbox (100 pixels right of item checkbox)
+        int entityHeaderX = checkboxBaseX + 100 + 8 - minecraft.textRenderer.getWidth("Entity") / 2;
+        context.drawText(minecraft.textRenderer, "Entity", entityHeaderX, headerY, 0xFFFFFFFF, false);
     }
     
     // Base Entry class
@@ -470,6 +591,331 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         @Override
         public Text getNarration() {
             return Text.literal(block.getName().getString());
+        }
+    }
+    
+    // Unified Entry for holding item/block/entity data
+    public static class UnifiedEntry {
+        public final String name;
+        public final Item item;
+        public final Block block;
+        public final EntityType<?> entityType;
+        
+        public UnifiedEntry(String name, Item item, Block block, EntityType<?> entityType) {
+            this.name = name;
+            this.item = item;
+            this.block = block;
+            this.entityType = entityType;
+        }
+        
+        public boolean hasItem() {
+            return item != null;
+        }
+        
+        public boolean hasBlock() {
+            return block != null;
+        }
+        
+        public boolean hasEntity() {
+            return entityType != null;
+        }
+    }
+    
+    // Unified Item Entry with multiple checkboxes
+    public static class UnifiedItemEntry extends Entry {
+        private final UnifiedEntry unifiedEntry;
+        private boolean itemSelected;
+        private boolean blockSelected;
+        private boolean entitySelected;
+        
+        // Store checkbox positions from render method
+        private int itemCheckboxX = -1;
+        private int blockCheckboxX = -1; 
+        private int entityCheckboxX = -1;
+        private int checkboxY = -1;
+        private int colorWidgetX = -1;
+        private int colorWidgetY = -1;
+        
+        public UnifiedItemEntry(UnifiedEntry unifiedEntry) {
+            this.unifiedEntry = unifiedEntry;
+            
+            // Initialize selection states
+            if (unifiedEntry.hasItem()) {
+                Identifier itemId = Registries.ITEM.getId(unifiedEntry.item);
+                this.itemSelected = ModConfig.INSTANCE.isItemSelected(itemId);
+            }
+            
+            if (unifiedEntry.hasBlock()) {
+                Identifier blockId = Registries.BLOCK.getId(unifiedEntry.block);
+                this.blockSelected = ModConfig.INSTANCE.isBlockSelected(blockId);
+            }
+            
+            if (unifiedEntry.hasEntity()) {
+                Identifier entityId = Registries.ENTITY_TYPE.getId(unifiedEntry.entityType);
+                this.entitySelected = ModConfig.INSTANCE.isEntitySelected(entityId);
+            }
+        }
+        
+        @Override
+        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+            net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
+            
+            int currentX = x + 2;
+            
+            // Draw icon (item if available, otherwise block)
+            if (unifiedEntry.hasItem()) {
+                context.drawItem(new ItemStack(unifiedEntry.item), currentX, y + 2);
+            } else if (unifiedEntry.hasBlock()) {
+                context.drawItem(new ItemStack(unifiedEntry.block), currentX, y + 2);
+            }
+            currentX += 22;
+            
+            // Draw name
+            String displayName;
+            if (unifiedEntry.hasItem()) {
+                displayName = unifiedEntry.item.getName().getString();
+            } else if (unifiedEntry.hasBlock()) {
+                displayName = unifiedEntry.block.getName().getString();
+            } else if (unifiedEntry.hasEntity()) {
+                displayName = unifiedEntry.entityType.getName().getString();
+            } else {
+                displayName = unifiedEntry.name;
+            }
+            context.drawText(minecraft.textRenderer, displayName, currentX, y + 6, 0xFFFFFFFF, false);
+            currentX = x + 200;
+            
+            int checkboxSize = 16;
+            this.checkboxY = y + 2; // Store checkbox Y position
+            
+            // Draw item checkbox if item exists
+            if (unifiedEntry.hasItem()) {
+                this.itemCheckboxX = currentX; // Store item checkbox X position
+                context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, itemSelected ? 0xFF4CAF50 : 0xFF333333);
+                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                
+                if (itemSelected) {
+                    String checkmark = "✓";
+                    int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                    int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                    int checkmarkX = currentX + (checkboxSize - checkmarkWidth) / 2;
+                    int checkmarkY = y + 2 + (checkboxSize - checkmarkHeight) / 2;
+                    context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
+                }
+            }
+            currentX += 50;
+            
+            // Draw block checkbox if block exists
+            if (unifiedEntry.hasBlock()) {
+                this.blockCheckboxX = currentX; // Store block checkbox X position
+                context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, blockSelected ? 0xFF4CAF50 : 0xFF333333);
+                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                
+                if (blockSelected) {
+                    String checkmark = "✓";
+                    int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                    int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                    int checkmarkX = currentX + (checkboxSize - checkmarkWidth) / 2;
+                    int checkmarkY = y + 2 + (checkboxSize - checkmarkHeight) / 2;
+                    context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
+                }
+            }
+            currentX += 50;
+            
+            // Draw entity checkbox if entity exists
+            if (unifiedEntry.hasEntity()) {
+                this.entityCheckboxX = currentX; // Store entity checkbox X position
+                context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, entitySelected ? 0xFF4CAF50 : 0xFF333333);
+                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                
+                if (entitySelected) {
+                    String checkmark = "✓";
+                    int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                    int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                    int checkmarkX = currentX + (checkboxSize - checkmarkWidth) / 2;
+                    int checkmarkY = y + 2 + (checkboxSize - checkmarkHeight) / 2;
+                    context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
+                }
+            }
+            
+            // Draw single color widget if any type is selected
+            if (itemSelected || blockSelected || entitySelected) {
+                currentX = x + entryWidth - 80;
+                this.colorWidgetX = currentX;
+                this.colorWidgetY = y + 2;
+                int color = getUnifiedColor();
+                drawColorWidget(context, minecraft, currentX, y + 2, color);
+            }
+        }
+        
+        private void drawColorWidget(DrawContext context, net.minecraft.client.MinecraftClient minecraft, int x, int y, int color) {
+            int colorWidth = 75;
+            int colorHeight = 16;
+            
+            context.fill(x, y, x + colorWidth, y + colorHeight, 0xFF444444);
+            context.drawBorder(x, y, colorWidth, colorHeight, 0xFF666666);
+            context.drawCenteredTextWithShadow(minecraft.textRenderer, getColorName(color), x + colorWidth / 2, y + 4, color);
+        }
+        
+        private int getUnifiedColor() {
+            // Return the color from any selected type (they should all be the same)
+            if (itemSelected && unifiedEntry.hasItem()) {
+                return ModConfig.INSTANCE.getItemColor(Registries.ITEM.getId(unifiedEntry.item));
+            }
+            if (blockSelected && unifiedEntry.hasBlock()) {
+                return ModConfig.INSTANCE.getBlockColor(Registries.BLOCK.getId(unifiedEntry.block));
+            }
+            if (entitySelected && unifiedEntry.hasEntity()) {
+                return ModConfig.INSTANCE.getEntityColor(Registries.ENTITY_TYPE.getId(unifiedEntry.entityType));
+            }
+            return ModConfig.INSTANCE.defaultColor;
+        }
+        
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            // Use absolute coordinates with stored positions from render method
+            int checkboxSize = 16;
+            
+            // Check unified color widget click first
+            if (colorWidgetX != -1 && (itemSelected || blockSelected || entitySelected) &&
+                mouseX >= colorWidgetX && mouseX < colorWidgetX + 75 &&
+                mouseY >= colorWidgetY && mouseY < colorWidgetY + 16) {
+                
+                // Cycle color for all selected types
+                int currentColor = getUnifiedColor();
+                int newColor = getNextColor(currentColor);
+                setUnifiedColor(newColor);
+                return true;
+            }
+            
+            // Check item checkbox click
+            if (unifiedEntry.hasItem() && itemCheckboxX != -1 &&
+                mouseX >= itemCheckboxX && mouseX < itemCheckboxX + checkboxSize &&
+                mouseY >= checkboxY && mouseY < checkboxY + checkboxSize) {
+                
+                Identifier itemId = Registries.ITEM.getId(unifiedEntry.item);
+                int currentColor = getUnifiedColor();
+                
+                ModConfig.INSTANCE.toggleItemSelection(itemId, currentColor);
+                this.itemSelected = ModConfig.INSTANCE.isItemSelected(itemId);
+                
+                // Sync colors when toggling
+                if (this.itemSelected) {
+                    setUnifiedColor(currentColor);
+                }
+                return true;
+            }
+            
+            // Check block checkbox click
+            if (unifiedEntry.hasBlock() && blockCheckboxX != -1 &&
+                mouseX >= blockCheckboxX && mouseX < blockCheckboxX + checkboxSize &&
+                mouseY >= checkboxY && mouseY < checkboxY + checkboxSize) {
+                
+                Identifier blockId = Registries.BLOCK.getId(unifiedEntry.block);
+                int currentColor = getUnifiedColor();
+                
+                ModConfig.INSTANCE.toggleBlockSelection(blockId, currentColor);
+                this.blockSelected = ModConfig.INSTANCE.isBlockSelected(blockId);
+                
+                // Sync colors when toggling
+                if (this.blockSelected) {
+                    setUnifiedColor(currentColor);
+                }
+                return true;
+            }
+            
+            // Check entity checkbox click
+            if (unifiedEntry.hasEntity() && entityCheckboxX != -1 &&
+                mouseX >= entityCheckboxX && mouseX < entityCheckboxX + checkboxSize &&
+                mouseY >= checkboxY && mouseY < checkboxY + checkboxSize) {
+                
+                Identifier entityId = Registries.ENTITY_TYPE.getId(unifiedEntry.entityType);
+                int currentColor = getUnifiedColor();
+                
+                ModConfig.INSTANCE.toggleEntitySelection(entityId, currentColor);
+                this.entitySelected = ModConfig.INSTANCE.isEntitySelected(entityId);
+                
+                // Sync colors when toggling
+                if (this.entitySelected) {
+                    setUnifiedColor(currentColor);
+                }
+                return true;
+            }
+            
+            return false;
+        }
+        
+        private void setUnifiedColor(int color) {
+            // Set the same color for all selected types
+            if (itemSelected && unifiedEntry.hasItem()) {
+                ModConfig.INSTANCE.setItemColor(Registries.ITEM.getId(unifiedEntry.item), color);
+            }
+            if (blockSelected && unifiedEntry.hasBlock()) {
+                ModConfig.INSTANCE.setBlockColor(Registries.BLOCK.getId(unifiedEntry.block), color);
+            }
+            if (entitySelected && unifiedEntry.hasEntity()) {
+                ModConfig.INSTANCE.setEntityColor(Registries.ENTITY_TYPE.getId(unifiedEntry.entityType), color);
+            }
+        }
+        
+        public void toggleItemSelection(boolean select) {
+            if (unifiedEntry.hasItem()) {
+                Identifier itemId = Registries.ITEM.getId(unifiedEntry.item);
+                if (select != ModConfig.INSTANCE.isItemSelected(itemId)) {
+                    int currentColor = getUnifiedColor();
+                    ModConfig.INSTANCE.toggleItemSelection(itemId, currentColor);
+                }
+                this.itemSelected = ModConfig.INSTANCE.isItemSelected(itemId);
+            }
+        }
+        
+        public void toggleEntitySelection(boolean select) {
+            if (unifiedEntry.hasEntity()) {
+                Identifier entityId = Registries.ENTITY_TYPE.getId(unifiedEntry.entityType);
+                if (select != ModConfig.INSTANCE.isEntitySelected(entityId)) {
+                    int currentColor = getUnifiedColor();
+                    ModConfig.INSTANCE.toggleEntitySelection(entityId, currentColor);
+                }
+                this.entitySelected = ModConfig.INSTANCE.isEntitySelected(entityId);
+            }
+        }
+        
+        @Override
+        public void setSelected(boolean selected) {
+            int currentColor = getUnifiedColor();
+            
+            if (unifiedEntry.hasItem()) {
+                Identifier itemId = Registries.ITEM.getId(unifiedEntry.item);
+                if (selected != ModConfig.INSTANCE.isItemSelected(itemId)) {
+                    ModConfig.INSTANCE.toggleItemSelection(itemId, currentColor);
+                }
+                this.itemSelected = ModConfig.INSTANCE.isItemSelected(itemId);
+            }
+            
+            if (unifiedEntry.hasBlock()) {
+                Identifier blockId = Registries.BLOCK.getId(unifiedEntry.block);
+                if (selected != ModConfig.INSTANCE.isBlockSelected(blockId)) {
+                    ModConfig.INSTANCE.toggleBlockSelection(blockId, currentColor);
+                }
+                this.blockSelected = ModConfig.INSTANCE.isBlockSelected(blockId);
+            }
+            
+            if (unifiedEntry.hasEntity()) {
+                Identifier entityId = Registries.ENTITY_TYPE.getId(unifiedEntry.entityType);
+                if (selected != ModConfig.INSTANCE.isEntitySelected(entityId)) {
+                    ModConfig.INSTANCE.toggleEntitySelection(entityId, currentColor);
+                }
+                this.entitySelected = ModConfig.INSTANCE.isEntitySelected(entityId);
+            }
+            
+            // Ensure all selected types have the same color
+            if (selected && (itemSelected || blockSelected || entitySelected)) {
+                setUnifiedColor(currentColor);
+            }
+        }
+        
+        @Override
+        public Text getNarration() {
+            return Text.literal(unifiedEntry.name);
         }
     }
     
