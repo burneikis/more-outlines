@@ -11,6 +11,7 @@ public class ModKeybinds {
     
     public static KeyBinding openConfigGui;
     public static KeyBinding toggleAllOutlines;
+    public static KeyBinding toggleEntityOutlines;
     
     public static void registerKeyBinds() {
         openConfigGui = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -26,11 +27,22 @@ public class ModKeybinds {
             GLFW.GLFW_KEY_O,
             KEY_CATEGORY_MORE_OUTLINES
         ));
+        
+        toggleEntityOutlines = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.more-outlines.toggle_entity_outlines",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_E,
+            KEY_CATEGORY_MORE_OUTLINES
+        ));
     }
     
     public static void handleKeyPress() {
         if (toggleAllOutlines.wasPressed()) {
             ModConfig.INSTANCE.toggleOutlinesEnabled();
+        }
+        
+        if (toggleEntityOutlines.wasPressed()) {
+            ModConfig.INSTANCE.toggleEntityOutlines();
         }
     }
 }
