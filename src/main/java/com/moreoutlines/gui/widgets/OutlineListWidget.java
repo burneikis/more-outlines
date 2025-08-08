@@ -33,8 +33,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     public void updateSearchResults(String searchText) {
         this.clearEntries();
         
-        if (searchCache.containsKey(searchText)) {
-            List<UnifiedEntry> results = searchCache.get(searchText);
+        // Convert spaces to underscores for search
+        String normalizedSearchText = searchText.replace(' ', '_');
+        
+        if (searchCache.containsKey(normalizedSearchText)) {
+            List<UnifiedEntry> results = searchCache.get(normalizedSearchText);
             
             for (UnifiedEntry unifiedEntry : results) {
                 this.addEntry(new UnifiedItemEntry(unifiedEntry));
