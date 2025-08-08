@@ -15,9 +15,7 @@ public class ModConfig {
     public boolean diamondBlockOutlines = false;
     
     public float outlineWidth = 2.0f;
-    public int itemOutlineColor = 0xFFFFFFFF;
-    public int entityOutlineColor = 0xFFFFFFFF;
-    public int blockOutlineColor = 0xFFFFFFFF;
+    public int defaultColor = 0xFFFFFFFF; // White by default
 
     // Specific item, entity, block selections
     public final Map<Identifier, ItemOutlineConfig> selectedItems = new HashMap<>();
@@ -104,7 +102,7 @@ public class ModConfig {
     
     public int getItemColor(Identifier itemId) {
         ItemOutlineConfig config = selectedItems.get(itemId);
-        return config != null ? config.color : itemOutlineColor;
+        return config != null ? config.color : defaultColor;
     }
     
     public void toggleEntitySelection(Identifier entityId, int defaultColor) {
@@ -130,7 +128,7 @@ public class ModConfig {
     
     public int getEntityColor(Identifier entityId) {
         EntityOutlineConfig config = selectedEntities.get(entityId);
-        return config != null ? config.color : entityOutlineColor;
+        return config != null ? config.color : defaultColor;
     }
     
     public void toggleBlockSelection(Identifier blockId, int defaultColor) {
@@ -156,7 +154,7 @@ public class ModConfig {
     
     public int getBlockColor(Identifier blockId) {
         BlockOutlineConfig config = selectedBlocks.get(blockId);
-        return config != null ? config.color : blockOutlineColor;
+        return config != null ? config.color : defaultColor;
     }
     
     // Method to add default selections for demonstration

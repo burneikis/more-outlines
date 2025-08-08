@@ -56,7 +56,7 @@ public class EntityRenderDispatcherMixin {
             
             // Fall back to general item outline color if general item outlines are enabled
             if (ModConfig.INSTANCE.itemOutlines) {
-                return ModConfig.INSTANCE.itemOutlineColor;
+                return ModConfig.INSTANCE.defaultColor;
             }
         }
         
@@ -70,7 +70,7 @@ public class EntityRenderDispatcherMixin {
         
         // Fall back to general entity outline color if general entity outlines are enabled
         if (ModConfig.INSTANCE.entityOutlines) {
-            return ModConfig.INSTANCE.entityOutlineColor;
+            return ModConfig.INSTANCE.defaultColor;
         }
         
         return -1; // No color to set

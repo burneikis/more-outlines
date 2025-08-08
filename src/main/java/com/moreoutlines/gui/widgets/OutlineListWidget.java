@@ -254,7 +254,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             }
             
             // Toggle selection
-            ModConfig.INSTANCE.toggleItemSelection(itemId, ModConfig.INSTANCE.itemOutlineColor);
+            ModConfig.INSTANCE.toggleItemSelection(itemId, ModConfig.INSTANCE.defaultColor);
             this.selected = ModConfig.INSTANCE.isItemSelected(itemId);
             return true;
         }
@@ -270,7 +270,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         public void setSelected(boolean selected) {
             Identifier itemId = Registries.ITEM.getId(item);
             if (selected != ModConfig.INSTANCE.isItemSelected(itemId)) {
-                ModConfig.INSTANCE.toggleItemSelection(itemId, ModConfig.INSTANCE.itemOutlineColor);
+                ModConfig.INSTANCE.toggleItemSelection(itemId, ModConfig.INSTANCE.defaultColor);
             }
             this.selected = ModConfig.INSTANCE.isItemSelected(itemId);
         }
@@ -340,7 +340,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             }
             
             // Toggle selection
-            ModConfig.INSTANCE.toggleEntitySelection(entityId, ModConfig.INSTANCE.entityOutlineColor);
+            ModConfig.INSTANCE.toggleEntitySelection(entityId, ModConfig.INSTANCE.defaultColor);
             this.selected = ModConfig.INSTANCE.isEntitySelected(entityId);
             return true;
         }
@@ -356,7 +356,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         public void setSelected(boolean selected) {
             Identifier entityId = Registries.ENTITY_TYPE.getId(entityType);
             if (selected != ModConfig.INSTANCE.isEntitySelected(entityId)) {
-                ModConfig.INSTANCE.toggleEntitySelection(entityId, ModConfig.INSTANCE.entityOutlineColor);
+                ModConfig.INSTANCE.toggleEntitySelection(entityId, ModConfig.INSTANCE.defaultColor);
             }
             this.selected = ModConfig.INSTANCE.isEntitySelected(entityId);
         }
@@ -429,7 +429,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             }
             
             // Toggle selection
-            ModConfig.INSTANCE.toggleBlockSelection(blockId, ModConfig.INSTANCE.blockOutlineColor);
+            ModConfig.INSTANCE.toggleBlockSelection(blockId, ModConfig.INSTANCE.defaultColor);
             this.selected = ModConfig.INSTANCE.isBlockSelected(blockId);
             return true;
         }
@@ -445,7 +445,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         public void setSelected(boolean selected) {
             Identifier blockId = Registries.BLOCK.getId(block);
             if (selected != ModConfig.INSTANCE.isBlockSelected(blockId)) {
-                ModConfig.INSTANCE.toggleBlockSelection(blockId, ModConfig.INSTANCE.blockOutlineColor);
+                ModConfig.INSTANCE.toggleBlockSelection(blockId, ModConfig.INSTANCE.defaultColor);
             }
             this.selected = ModConfig.INSTANCE.isBlockSelected(blockId);
         }
