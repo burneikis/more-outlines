@@ -57,7 +57,7 @@ public class ModConfigScreen extends Screen {
         // Bottom buttons
         int buttonWidth = 80;
         int buttonHeight = 20;
-        int numberOfButtons = 3; // All Items, All Entities, Done
+        int numberOfButtons = 4; // All Items, All Blocks, All Entities, Done
         int buttonInterval = (this.width - numberOfButtons * buttonWidth) / (numberOfButtons + 1);
         int buttonY = this.height - 16 - (buttonHeight / 2);
         
@@ -68,18 +68,25 @@ public class ModConfigScreen extends Screen {
             .dimensions(buttonInterval, buttonY, buttonWidth, buttonHeight)
             .build());
         
+        // All Blocks button
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("All Blocks"),
+                button -> toggleAllBlocks())
+            .dimensions(buttonInterval + (buttonWidth + buttonInterval), buttonY, buttonWidth, buttonHeight)
+            .build());
+        
         // All Entities button
         this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("All Entities"),
                 button -> toggleAllEntities())
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval), buttonY, buttonWidth, buttonHeight)
+            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 2, buttonY, buttonWidth, buttonHeight)
             .build());
             
         // Done button
         this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Done"),
                 button -> this.close())
-            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 2, buttonY, buttonWidth, buttonHeight)
+            .dimensions(buttonInterval + (buttonWidth + buttonInterval) * 3, buttonY, buttonWidth, buttonHeight)
             .build());
         
         this.setInitialFocus(this.searchField);
@@ -100,6 +107,12 @@ public class ModConfigScreen extends Screen {
         }
     }
     
+    private void toggleAllBlocks() {
+        if (list != null) {
+            list.toggleAllBlocks();
+        }
+    }
+    
     private void toggleAllEntities() {
         if (list != null) {
             list.toggleAllEntities();
@@ -112,10 +125,33 @@ public class ModConfigScreen extends Screen {
         if (list != null) {
             list.render(context, mouseX, mouseY, delta);
         }
-        this.setFocused(this.searchField);
         if (searchField != null) {
             this.searchField.render(context, mouseX, mouseY, delta);
         }
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Let the list handle arrow keys first
+        if (list != null && list.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        // Then let the search field handle other keys
+        if (searchField != null && searchField.isFocused() && searchField.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Check if clicking on the list area to focus it for keyboard navigation
+        if (list != null && mouseX >= list.getX() && mouseX < list.getX() + list.getWidth() && 
+            mouseY >= list.getY() && mouseY < list.getY() + list.getHeight()) {
+            this.setFocused(list);
+            return list.mouseClicked(mouseX, mouseY, button);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
     
     @Override

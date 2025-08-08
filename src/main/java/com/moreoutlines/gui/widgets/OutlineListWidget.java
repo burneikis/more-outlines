@@ -233,6 +233,49 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
     }
     
+    public void toggleAllBlocks() {
+        boolean allBlocksSelected = true;
+        int totalBlocks = 0;
+        
+        // Check if ALL blocks are currently selected
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasBlock()) {
+                    totalBlocks++;
+                    if (!unifiedEntry.blockSelected) {
+                        allBlocksSelected = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // If no blocks exist, do nothing
+        if (totalBlocks == 0) return;
+        
+        // Toggle all blocks based on current state
+        // If ALL blocks are selected, deselect all; otherwise select all
+        for (Entry entry : this.children()) {
+            if (entry instanceof UnifiedItemEntry) {
+                UnifiedItemEntry unifiedEntry = (UnifiedItemEntry) entry;
+                if (unifiedEntry.unifiedEntry.hasBlock()) {
+                    if (allBlocksSelected) {
+                        // All blocks are selected, so turn them off
+                        if (unifiedEntry.blockSelected) {
+                            unifiedEntry.toggleBlockSelection(false);
+                        }
+                    } else {
+                        // Not all blocks are selected, so turn them all on
+                        if (!unifiedEntry.blockSelected) {
+                            unifiedEntry.toggleBlockSelection(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     @Override
     public int getRowWidth() {
         return 400;
@@ -240,6 +283,40 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     
     protected int getScrollbarX() {
         return this.width - 6;
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Handle up and down arrow keys for navigation
+        if (keyCode == 264) { // Down arrow
+            this.moveSelection(1);
+            return true;
+        } else if (keyCode == 265) { // Up arrow
+            this.moveSelection(-1);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    private void moveSelection(int direction) {
+        if (this.children().isEmpty()) return;
+        
+        int currentIndex = -1;
+        Entry selectedEntry = this.getSelectedOrNull();
+        
+        if (selectedEntry != null) {
+            currentIndex = this.children().indexOf(selectedEntry);
+        }
+        
+        int newIndex = currentIndex + direction;
+        if (newIndex < 0) {
+            newIndex = this.children().size() - 1; // Wrap to bottom
+        } else if (newIndex >= this.children().size()) {
+            newIndex = 0; // Wrap to top
+        }
+        
+        this.setSelected(this.children().get(newIndex));
+        this.ensureVisible(this.children().get(newIndex));
     }
     
         @Override
@@ -865,6 +942,17 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                     ModConfig.INSTANCE.toggleItemSelection(itemId, currentColor);
                 }
                 this.itemSelected = ModConfig.INSTANCE.isItemSelected(itemId);
+            }
+        }
+        
+        public void toggleBlockSelection(boolean select) {
+            if (unifiedEntry.hasBlock()) {
+                Identifier blockId = Registries.BLOCK.getId(unifiedEntry.block);
+                if (select != ModConfig.INSTANCE.isBlockSelected(blockId)) {
+                    int currentColor = getUnifiedColor();
+                    ModConfig.INSTANCE.toggleBlockSelection(blockId, currentColor);
+                }
+                this.blockSelected = ModConfig.INSTANCE.isBlockSelected(blockId);
             }
         }
         
