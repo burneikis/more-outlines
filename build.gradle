@@ -59,6 +59,12 @@ jar {
 	}
 }
 
+// Ensure proper mixin refmap generation for production builds
+remapJar {
+	input = jar.archiveFile
+	dependsOn jar
+}
+
 // configure the maven publication
 publishing {
 	publications {
