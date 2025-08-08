@@ -8,12 +8,7 @@ public class ModConfig {
     public static final ModConfig INSTANCE = new ModConfig();
     
     public boolean outlinesEnabled = false;
-    public boolean itemOutlines = false;
-    public boolean entityOutlines = false;
-    public boolean blockEntityOutlines = false;
-    public boolean blockOutlines = false;
     
-    public float outlineWidth = 2.0f;
     public int defaultColor = 0xFFFFFFFF; // White by default
 
     // Specific item, entity, block selections
@@ -56,23 +51,6 @@ public class ModConfig {
     public void toggleOutlinesEnabled() {
         outlinesEnabled = !outlinesEnabled;
     }
-    
-    public void toggleItemOutlines() {
-        itemOutlines = !itemOutlines;
-    }
-    
-    public void toggleEntityOutlines() {
-        entityOutlines = !entityOutlines;
-    }
-    
-    public void toggleBlockEntityOutlines() {
-        blockEntityOutlines = !blockEntityOutlines;
-    }
-    
-    public void toggleBlockOutlines() {
-        blockOutlines = !blockOutlines;
-    }
-    
     
     // Methods for managing specific selections
     public void toggleItemSelection(Identifier itemId, int defaultColor) {

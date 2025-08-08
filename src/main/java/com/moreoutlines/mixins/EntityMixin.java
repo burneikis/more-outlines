@@ -30,12 +30,6 @@ public class EntityMixin {
                 cir.setReturnValue(true);
                 return;
             }
-            
-            // Fall back to general item outlines toggle
-            if (ModConfig.INSTANCE.itemOutlines) {
-                cir.setReturnValue(true);
-            }
-            return;
         }
         
         // Handle other entities with specific entity selection
@@ -43,15 +37,6 @@ public class EntityMixin {
         if (ModConfig.INSTANCE.isEntitySelected(entityId)) {
             cir.setReturnValue(true);
             return;
-        }
-        
-        // Fall back to general entity outlines toggle
-        if (ModConfig.INSTANCE.entityOutlines) {
-            if (entity instanceof LivingEntity) {
-                cir.setReturnValue(true);
-            } else {
-                cir.setReturnValue(true);
-            }
         }
     }
 }

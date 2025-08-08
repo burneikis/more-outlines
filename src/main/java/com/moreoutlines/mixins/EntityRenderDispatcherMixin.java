@@ -53,11 +53,6 @@ public class EntityRenderDispatcherMixin {
             if (ModConfig.INSTANCE.isItemSelected(itemId)) {
                 return ModConfig.INSTANCE.getItemColor(itemId);
             }
-            
-            // Fall back to general item outline color if general item outlines are enabled
-            if (ModConfig.INSTANCE.itemOutlines) {
-                return ModConfig.INSTANCE.defaultColor;
-            }
         }
         
         // Handle other entities
@@ -66,11 +61,6 @@ public class EntityRenderDispatcherMixin {
         // Check for specific entity selection
         if (ModConfig.INSTANCE.isEntitySelected(entityId)) {
             return ModConfig.INSTANCE.getEntityColor(entityId);
-        }
-        
-        // Fall back to general entity outline color if general entity outlines are enabled
-        if (ModConfig.INSTANCE.entityOutlines) {
-            return ModConfig.INSTANCE.defaultColor;
         }
         
         return -1; // No color to set

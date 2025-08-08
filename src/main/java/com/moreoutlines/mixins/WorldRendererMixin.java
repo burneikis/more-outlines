@@ -40,7 +40,7 @@ public class WorldRendererMixin {
         dispatcher.render(blockEntity, tickProgress, matrices, vertexConsumers);
         
         // Only render outlines if enabled
-        if (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.blockEntityOutlines) {
+        if (ModConfig.INSTANCE.outlinesEnabled) {
             OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
             
             // Extract color components from config
@@ -91,19 +91,14 @@ public class WorldRendererMixin {
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V"), index = 6)
     private boolean forceEntityOutline(boolean renderEntityOutline) {
         // Force entity outline rendering if any outlines are enabled
-        return renderEntityOutline || 
-               (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.blockEntityOutlines) ||
-               (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && 
-                !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty());
+        return renderEntityOutline || (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty());
     }
 
     @Inject(method = "getEntitiesToRender", at = @At("RETURN"), cancellable = true)
     private void forceEntityOutlineReturn(Camera camera, Frustum frustum, List<Entity> output,
             CallbackInfoReturnable<Boolean> cir) {
         // Force return true if any outlines are enabled to ensure proper rendering
-        if (ModConfig.INSTANCE.outlinesEnabled && 
-            (ModConfig.INSTANCE.blockEntityOutlines || 
-             (!ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty()))) {
+        if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty()) {
             cir.setReturnValue(true);
         }
     }
