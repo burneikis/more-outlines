@@ -1,6 +1,7 @@
 package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
+import com.moreoutlines.util.ColorUtil;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -33,14 +34,7 @@ public class EntityRenderDispatcherMixin {
         
         int color = getEntityOutlineColor(entity);
         if (color != -1) {
-            // Extract color components
-            int red = (color >> 16) & 0xFF;
-            int green = (color >> 8) & 0xFF;
-            int blue = color & 0xFF;
-            int alpha = (color >> 24) & 0xFF;
-            
-            // Set the outline color
-            outlineProvider.setColor(red, green, blue, alpha);
+            ColorUtil.setOutlineColor(outlineProvider, color);
         }
     }
     

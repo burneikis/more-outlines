@@ -1,6 +1,7 @@
 package com.moreoutlines.renderer;
 
 import com.moreoutlines.config.ModConfig;
+import com.moreoutlines.util.ColorUtil;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -53,16 +54,9 @@ public class BlockSelectionOutlineRenderer {
                 continue;
             }
             
-            // Get the color for this block type
+            // Get the color for this block type and set it
             int color = ModConfig.INSTANCE.getBlockColor(blockId);
-            
-            // Extract RGB components from the color
-            int red = (color >> 16) & 0xFF;
-            int green = (color >> 8) & 0xFF;
-            int blue = color & 0xFF;
-            
-            // Set the outline color
-            outlineProvider.setColor(red, green, blue, 255); // Full opacity
+            ColorUtil.setOutlineColor(outlineProvider, color);
             
             // Render each block of this type
             for (BlockPos pos : positions) {

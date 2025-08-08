@@ -3,6 +3,7 @@ package com.moreoutlines.mixins;
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.BlockSelectionScanner;
+import com.moreoutlines.util.ColorUtil;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -33,6 +34,15 @@ public class WorldRendererMixin {
     
     @Shadow
     private ClientWorld world;
+    
+    /**
+     * Checks if block outline rendering is active and has tracked blocks.
+     */
+    private boolean hasActiveBlockOutlines() {
+        return ModConfig.INSTANCE.outlinesEnabled 
+            && !ModConfig.INSTANCE.selectedBlocks.isEmpty() 
+            && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty();
+    }
 
     @Redirect(method = "renderBlockEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/entity/BlockEntityRenderDispatcher;render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     private void redirectBlockEntityRender(BlockEntityRenderDispatcher dispatcher, BlockEntity blockEntity,
@@ -50,14 +60,10 @@ public class WorldRendererMixin {
             if (ModConfig.INSTANCE.isBlockSelected(blockId)) {
                 OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
                 
-                // Get the color for this specific block type
+                // Set the outline color for this specific block type
                 int color = ModConfig.INSTANCE.getBlockColor(blockId);
-                int red = (color >> 16) & 0xFF;
-                int green = (color >> 8) & 0xFF;
-                int blue = color & 0xFF;
-                int alpha = (color >> 24) & 0xFF;
+                ColorUtil.setOutlineColor(outlineProvider, color);
                 
-                outlineProvider.setColor(red, green, blue, alpha);
                 dispatcher.render(blockEntity, tickProgress, matrices, outlineProvider);
             }
         }
@@ -77,36 +83,34 @@ public class WorldRendererMixin {
         CallbackInfo ci
     ) {
         // Render block selection outlines
-        if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty()) {
+        if (hasActiveBlockOutlines()) {
             BlockSelectionScanner scanner = BlockSelectionScanner.getInstance();
-            if (!scanner.getTrackedBlocksByType().isEmpty()) {
-                
-                // Get the outline vertex consumer provider from the buffer builders
-                OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
-                
-                // Render our custom block selection outlines
-                BlockSelectionOutlineRenderer.renderBlockSelectionOutlines(
-                    matrices,
-                    camera,
-                    outlineProvider,
-                    this.world,
-                    scanner.getTrackedBlocksByType()
-                );
-            }
+            
+            // Get the outline vertex consumer provider from the buffer builders
+            OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
+            
+            // Render our custom block selection outlines
+            BlockSelectionOutlineRenderer.renderBlockSelectionOutlines(
+                matrices,
+                camera,
+                outlineProvider,
+                this.world,
+                scanner.getTrackedBlocksByType()
+            );
         }
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V"), index = 6)
+        @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V"), index = 6)
     private boolean forceEntityOutline(boolean renderEntityOutline) {
         // Force entity outline rendering if any outlines are enabled
-        return renderEntityOutline || (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty());
+        return renderEntityOutline || hasActiveBlockOutlines();
     }
 
     @Inject(method = "getEntitiesToRender", at = @At("RETURN"), cancellable = true)
     private void forceEntityOutlineReturn(Camera camera, Frustum frustum, List<Entity> output,
             CallbackInfoReturnable<Boolean> cir) {
         // Force return true if any outlines are enabled to ensure proper rendering
-        if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty()) {
+        if (hasActiveBlockOutlines()) {
             cir.setReturnValue(true);
         }
     }
