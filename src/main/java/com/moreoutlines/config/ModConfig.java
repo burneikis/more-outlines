@@ -8,12 +8,14 @@ public class ModConfig {
     public boolean entityOutlines = false;
     public boolean blockEntityOutlines = false;
     public boolean blockOutlines = false;
+    public boolean diamondBlockOutlines = false;
     
     public float outlineWidth = 2.0f;
     public int itemOutlineColor = 0xFF00FF00;
     public int entityOutlineColor = 0xFF0000FF;
     public int blockEntityOutlineColor = 0xFFFF0000;
     public int blockOutlineColor = 0xFFFFFF00;
+    public int diamondBlockOutlineColor = 0xFF00FFFF;
     
     private ModConfig() {}
     
@@ -35,5 +37,9 @@ public class ModConfig {
     
     public void toggleBlockOutlines() {
         blockOutlines = !blockOutlines;
+    }
+    
+    public void toggleDiamondBlockOutlines() {
+        diamondBlockOutlines = !diamondBlockOutlines;
     }
 }

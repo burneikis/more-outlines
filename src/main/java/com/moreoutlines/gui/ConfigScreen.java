@@ -59,10 +59,10 @@ public class ConfigScreen extends Screen {
             .build());
         
         this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("Block Outlines (Diamond): " + (ModConfig.INSTANCE.blockOutlines ? "ON" : "OFF")),
+            Text.literal("Diamond Block Outlines: " + (ModConfig.INSTANCE.diamondBlockOutlines ? "ON" : "OFF")),
             button -> {
-                ModConfig.INSTANCE.toggleBlockOutlines();
-                button.setMessage(Text.literal("Block Outlines (Diamond): " + (ModConfig.INSTANCE.blockOutlines ? "ON" : "OFF")));
+                ModConfig.INSTANCE.toggleDiamondBlockOutlines();
+                button.setMessage(Text.literal("Diamond Block Outlines: " + (ModConfig.INSTANCE.diamondBlockOutlines ? "ON" : "OFF")));
             })
             .dimensions(this.width / 2 - buttonWidth / 2, startY + spacing * 4, buttonWidth, buttonHeight)
             .build());
