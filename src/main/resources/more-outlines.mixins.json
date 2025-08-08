@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "com.moreoutlines.mixins",
+	"compatibilityLevel": "JAVA_21",
+	"refmap": "more-outlines.refmap.json",
+	"mixins": [
+	],
+	"client": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "more-outlines",
+	"version": "${version}",
+	"name": "More Outlines",
+	"description": "Advanced outline rendering system for items, entities, block entities and blocks in Minecraft",
+	"authors": [
+		"MoreOutlines"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/more-outlines/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.moreoutlines.MoreOutlines"
+		],
+		"client": [
+			"com.moreoutlines.MoreOutlinesClient"
+		]
+	},
+	"mixins": [
+		"more-outlines.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.8",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+	}
+}
