@@ -12,7 +12,6 @@ public class ModConfig {
     public boolean entityOutlines = false;
     public boolean blockEntityOutlines = false;
     public boolean blockOutlines = false;
-    public boolean diamondBlockOutlines = false;
     
     public float outlineWidth = 2.0f;
     public int defaultColor = 0xFFFFFFFF; // White by default
@@ -74,9 +73,6 @@ public class ModConfig {
         blockOutlines = !blockOutlines;
     }
     
-    public void toggleDiamondBlockOutlines() {
-        diamondBlockOutlines = !diamondBlockOutlines;
-    }
     
     // Methods for managing specific selections
     public void toggleItemSelection(Identifier itemId, int defaultColor) {

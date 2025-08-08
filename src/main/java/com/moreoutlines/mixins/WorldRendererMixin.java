@@ -1,9 +1,7 @@
 package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
-import com.moreoutlines.renderer.DiamondBlockOutlineRenderer;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
-import com.moreoutlines.scanner.DiamondBlockScanner;
 import com.moreoutlines.scanner.BlockSelectionScanner;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.Camera;
@@ -57,12 +55,12 @@ public class WorldRendererMixin {
         }
     }
 
-    // Inject after block entities are rendered to add our custom diamond block outlines
+    // Inject after block entities are rendered to add our custom outlines
     @Inject(
         method = "renderBlockEntities", 
         at = @At("TAIL")
     )
-    private void renderDiamondBlockOutlines(
+    private void renderCustomOutlines(
         MatrixStack matrices,
         VertexConsumerProvider.Immediate entityVertexConsumers,
         VertexConsumerProvider.Immediate effectVertexConsumers,
@@ -70,26 +68,6 @@ public class WorldRendererMixin {
         float tickProgress,
         CallbackInfo ci
     ) {
-        // Only render if diamond block outlines are enabled and we have blocks to render
-        if (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.diamondBlockOutlines) {
-            DiamondBlockScanner scanner = DiamondBlockScanner.getInstance();
-            if (!scanner.getTrackedBlockPositions().isEmpty()) {
-                
-                // Get the outline vertex consumer provider from the buffer builders
-                OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
-                
-                // Render our custom diamond block outlines
-                DiamondBlockOutlineRenderer.renderDiamondBlockOutlines(
-                    matrices,
-                    camera,
-                    outlineProvider,
-                    this.world,
-                    scanner.getTrackedBlockPositions(),
-                    ModConfig.INSTANCE.defaultColor & 0xFFFFFF // Remove alpha for color extraction
-                );
-            }
-        }
-        
         // Render block selection outlines
         if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty()) {
             BlockSelectionScanner scanner = BlockSelectionScanner.getInstance();
@@ -115,8 +93,6 @@ public class WorldRendererMixin {
         // Force entity outline rendering if any outlines are enabled
         return renderEntityOutline || 
                (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.blockEntityOutlines) ||
-               (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.diamondBlockOutlines && 
-                !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty()) ||
                (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty() && 
                 !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty());
     }
@@ -127,7 +103,6 @@ public class WorldRendererMixin {
         // Force return true if any outlines are enabled to ensure proper rendering
         if (ModConfig.INSTANCE.outlinesEnabled && 
             (ModConfig.INSTANCE.blockEntityOutlines || 
-             (ModConfig.INSTANCE.diamondBlockOutlines && !DiamondBlockScanner.getInstance().getTrackedBlockPositions().isEmpty()) ||
              (!ModConfig.INSTANCE.selectedBlocks.isEmpty() && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty()))) {
             cir.setReturnValue(true);
         }

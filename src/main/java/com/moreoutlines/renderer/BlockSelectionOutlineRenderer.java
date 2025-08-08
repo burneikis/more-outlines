@@ -87,7 +87,7 @@ public class BlockSelectionOutlineRenderer {
         }
     }
     
-    // Render invisible block method adapted from DiamondBlockOutlineRenderer
+    // Render invisible block method for outline rendering
     private static void renderInvisibleBlock(
         BlockState blockState, 
         BlockPos blockPos, 
