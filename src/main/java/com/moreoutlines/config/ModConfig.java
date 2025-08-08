@@ -3,6 +3,7 @@ package com.moreoutlines.config;
 public class ModConfig {
     public static final ModConfig INSTANCE = new ModConfig();
     
+    public boolean outlinesEnabled = false;
     public boolean itemOutlines = false;
     public boolean entityOutlines = false;
     public boolean blockEntityOutlines = false;
@@ -16,12 +17,8 @@ public class ModConfig {
     
     private ModConfig() {}
     
-    public void toggleAllOutlines() {
-        boolean newState = !(itemOutlines || entityOutlines || blockEntityOutlines || blockOutlines);
-        itemOutlines = newState;
-        entityOutlines = newState;
-        blockEntityOutlines = newState;
-        blockOutlines = newState;
+    public void toggleOutlinesEnabled() {
+        outlinesEnabled = !outlinesEnabled;
     }
     
     public void toggleItemOutlines() {

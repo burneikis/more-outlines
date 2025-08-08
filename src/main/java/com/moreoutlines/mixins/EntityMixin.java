@@ -13,7 +13,7 @@ public class EntityMixin {
     
     @Inject(method = "isGlowing", at = @At("HEAD"), cancellable = true)
     private void onIsGlowing(CallbackInfoReturnable<Boolean> cir) {
-        if (ModConfig.INSTANCE.itemOutlines && (Entity) (Object) this instanceof ItemEntity) {
+        if (ModConfig.INSTANCE.outlinesEnabled && ModConfig.INSTANCE.itemOutlines && (Entity) (Object) this instanceof ItemEntity) {
             cir.setReturnValue(true);
         }
     }

@@ -30,7 +30,7 @@ public class ModKeybinds {
     
     public static void handleKeyPress() {
         if (toggleAllOutlines.wasPressed()) {
-            ModConfig.INSTANCE.toggleAllOutlines();
+            ModConfig.INSTANCE.toggleOutlinesEnabled();
         }
     }
 }
