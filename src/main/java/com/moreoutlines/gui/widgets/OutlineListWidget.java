@@ -218,8 +218,13 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
-                // Draw checkmark
-                context.drawText(minecraft.textRenderer, "✓", checkboxX + 3, checkboxY + 4, 0xFFFFFFFF, false);
+                // Draw checkmark - centered in checkbox
+                String checkmark = "✓";
+                int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                int checkmarkX = checkboxX + (checkboxSize - checkmarkWidth) / 2;
+                int checkmarkY = checkboxY + (checkboxSize - checkmarkHeight) / 2;
+                context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
             }
             
             // Draw item name
@@ -305,7 +310,13 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
-                context.drawText(minecraft.textRenderer, "✓", checkboxX + 3, checkboxY + 4, 0xFFFFFFFF, false);
+                // Draw checkmark - centered in checkbox
+                String checkmark = "✓";
+                int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                int checkmarkX = checkboxX + (checkboxSize - checkmarkWidth) / 2;
+                int checkmarkY = checkboxY + (checkboxSize - checkmarkHeight) / 2;
+                context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
             }
             
             // Draw entity name
@@ -394,7 +405,13 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
-                context.drawText(minecraft.textRenderer, "✓", checkboxX + 3, checkboxY + 4, 0xFFFFFFFF, false);
+                // Draw checkmark - centered in checkbox
+                String checkmark = "✓";
+                int checkmarkWidth = minecraft.textRenderer.getWidth(checkmark);
+                int checkmarkHeight = minecraft.textRenderer.fontHeight;
+                int checkmarkX = checkboxX + (checkboxSize - checkmarkWidth) / 2;
+                int checkmarkY = checkboxY + (checkboxSize - checkmarkHeight) / 2;
+                context.drawText(minecraft.textRenderer, checkmark, checkmarkX, checkmarkY, 0xFFFFFFFF, false);
             }
             
             // Draw block name
