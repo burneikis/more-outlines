@@ -75,47 +75,24 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             EntityType<?> entityType = null;
             String itemName = itemId.getPath();
             
-            // Map boat items to boat entities - each boat type has its own entity
-            if (itemName.equals("oak_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:oak_boat"));
-            } else if (itemName.equals("spruce_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:spruce_boat"));
-            } else if (itemName.equals("birch_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:birch_boat"));
-            } else if (itemName.equals("jungle_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:jungle_boat"));
-            } else if (itemName.equals("acacia_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:acacia_boat"));
-            } else if (itemName.equals("dark_oak_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:dark_oak_boat"));
-            } else if (itemName.equals("mangrove_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:mangrove_boat"));
-            } else if (itemName.equals("cherry_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:cherry_boat"));
-            } else if (itemName.equals("bamboo_raft")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:bamboo_raft"));
-            } else if (itemName.equals("oak_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:oak_chest_boat"));
-            } else if (itemName.equals("spruce_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:spruce_chest_boat"));
-            } else if (itemName.equals("birch_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:birch_chest_boat"));
-            } else if (itemName.equals("jungle_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:jungle_chest_boat"));
-            } else if (itemName.equals("acacia_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:acacia_chest_boat"));
-            } else if (itemName.equals("dark_oak_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:dark_oak_chest_boat"));
-            } else if (itemName.equals("mangrove_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:mangrove_chest_boat"));
-            } else if (itemName.equals("cherry_chest_boat")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:cherry_chest_boat"));
-            } else if (itemName.equals("bamboo_chest_raft")) {
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:bamboo_chest_raft"));
+            // Auto-map boat items to boat entities
+            if (itemName.endsWith("_boat") || itemName.endsWith("_raft")) {
+                // Try direct mapping first (works for most boats and rafts)
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of(itemId.getNamespace() + ":" + itemName));
+                
+                // If direct mapping doesn't work, the entity might not exist
+                if (entityType == Registries.ENTITY_TYPE.get(Identifier.of("minecraft:pig"))) {
+                    entityType = null; // Reset if we got the default fallback
+                }
             } else if (itemName.endsWith("_spawn_egg")) {
                 // Handle spawn eggs - map spawn egg items to their entities
                 String entityName = itemName.replace("_spawn_egg", "");
-                entityType = Registries.ENTITY_TYPE.get(Identifier.of("minecraft:" + entityName));
+                entityType = Registries.ENTITY_TYPE.get(Identifier.of(itemId.getNamespace() + ":" + entityName));
+                
+                // If direct mapping doesn't work, the entity might not exist
+                if (entityType == Registries.ENTITY_TYPE.get(Identifier.of("minecraft:pig"))) {
+                    entityType = null; // Reset if we got the default fallback
+                }
             }
             
             UnifiedEntry entry = new UnifiedEntry(itemId.toString(), item, block, entityType);
