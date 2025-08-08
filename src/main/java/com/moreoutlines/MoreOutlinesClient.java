@@ -18,9 +18,6 @@ public class MoreOutlinesClient implements ClientModInitializer {
 		
 		MoreOutlines.LOGGER.info("More Outlines client initialized!");
 		
-		// Add default selections for demonstration
-		ModConfig.INSTANCE.addDefaultSelections();
-		
 		ModKeybinds.registerKeyBinds();
 		
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {

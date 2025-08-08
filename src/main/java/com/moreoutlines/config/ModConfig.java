@@ -152,31 +152,4 @@ public class ModConfig {
         BlockOutlineConfig config = selectedBlocks.get(blockId);
         return config != null ? config.color : defaultColor;
     }
-    
-    // Method to add default selections for demonstration
-    public void addDefaultSelections() {
-        if (selectedItems.isEmpty() && selectedEntities.isEmpty() && selectedBlocks.isEmpty()) {
-            // Add some default item selections
-            selectedItems.put(Identifier.of("minecraft:diamond_sword"), new ItemOutlineConfig(false, 0xFF00FFFF));
-            selectedItems.put(Identifier.of("minecraft:netherite_sword"), new ItemOutlineConfig(false, 0xFFFF0000));
-            selectedItems.put(Identifier.of("minecraft:enchanted_book"), new ItemOutlineConfig(false, 0xFFFFFF00));
-            
-            // Add some default entity selections
-            selectedEntities.put(Identifier.of("minecraft:zombie"), new EntityOutlineConfig(false, 0xFF00FF00));
-            selectedEntities.put(Identifier.of("minecraft:creeper"), new EntityOutlineConfig(false, 0xFFFF0000));
-            selectedEntities.put(Identifier.of("minecraft:skeleton"), new EntityOutlineConfig(false, 0xFFFFFFFF));
-            selectedEntities.put(Identifier.of("minecraft:pig"), new EntityOutlineConfig(false, 0xFFFFB6C1));
-            
-            // Add boat entity selections - using correct entity types
-            selectedEntities.put(Identifier.of("minecraft:boat"), new EntityOutlineConfig(false, 0xFF8B4513));
-            selectedEntities.put(Identifier.of("minecraft:chest_boat"), new EntityOutlineConfig(false, 0xFF654321));
-            selectedEntities.put(Identifier.of("minecraft:bamboo_raft"), new EntityOutlineConfig(false, 0xFF7CFC00));
-            selectedEntities.put(Identifier.of("minecraft:bamboo_chest_raft"), new EntityOutlineConfig(false, 0xFF32CD32));
-            
-            // Add some default block selections
-            selectedBlocks.put(Identifier.of("minecraft:diamond_ore"), new BlockOutlineConfig(false, 0xFF00FFFF));
-            selectedBlocks.put(Identifier.of("minecraft:gold_ore"), new BlockOutlineConfig(false, 0xFFFFD700));
-            selectedBlocks.put(Identifier.of("minecraft:iron_ore"), new BlockOutlineConfig(false, 0xFFC0C0C0));
-        }
-    }
 }
