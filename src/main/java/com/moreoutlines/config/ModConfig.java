@@ -15,12 +15,10 @@ public class ModConfig {
     public boolean diamondBlockOutlines = false;
     
     public float outlineWidth = 2.0f;
-    public int itemOutlineColor = 0xFF00FF00;
-    public int entityOutlineColor = 0xFF0000FF;
-    public int blockEntityOutlineColor = 0xFFFF0000;
-    public int blockOutlineColor = 0xFFFFFF00;
-    public int diamondBlockOutlineColor = 0xFF00FFFF;
-    
+    public int itemOutlineColor = 0xFFFFFFFF;
+    public int entityOutlineColor = 0xFFFFFFFF;
+    public int blockOutlineColor = 0xFFFFFFFF;
+
     // Specific item, entity, block selections
     public final Map<Identifier, ItemOutlineConfig> selectedItems = new HashMap<>();
     public final Map<Identifier, EntityOutlineConfig> selectedEntities = new HashMap<>();

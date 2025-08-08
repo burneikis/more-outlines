@@ -46,7 +46,7 @@ public class WorldRendererMixin {
             OutlineVertexConsumerProvider outlineProvider = this.bufferBuilders.getOutlineVertexConsumers();
             
             // Extract color components from config
-            int color = ModConfig.INSTANCE.blockEntityOutlineColor;
+            int color = ModConfig.INSTANCE.blockOutlineColor;
             int red = (color >> 16) & 0xFF;
             int green = (color >> 8) & 0xFF;
             int blue = color & 0xFF;
@@ -85,7 +85,7 @@ public class WorldRendererMixin {
                     outlineProvider,
                     this.world,
                     scanner.getTrackedBlockPositions(),
-                    ModConfig.INSTANCE.diamondBlockOutlineColor & 0xFFFFFF // Remove alpha for color extraction
+                    ModConfig.INSTANCE.blockOutlineColor & 0xFFFFFF // Remove alpha for color extraction
                 );
             }
         }
