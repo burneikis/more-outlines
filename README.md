@@ -16,7 +16,7 @@ A comprehensive Minecraft Fabric mod for Minecraft 1.21.8 that implements advanc
    - Keybind system for toggling outline types
 
 1. **Items**
-   - Item outlines (set hasOutline to true for items)
+   - Item outlines
 
 2. **Entities**
    - Living entity outlines
