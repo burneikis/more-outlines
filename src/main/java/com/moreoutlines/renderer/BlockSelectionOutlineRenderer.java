@@ -3,12 +3,14 @@ package com.moreoutlines.renderer;
 import com.moreoutlines.config.ModConfig;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.block.BlockRenderManager;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.model.BlockModelPart;
 import net.minecraft.client.util.math.MatrixStack;
@@ -38,8 +40,9 @@ public class BlockSelectionOutlineRenderer {
         // Get camera position for relative positioning
         Vec3d cameraPos = camera.getPos();
         
-        // Get block render manager
+        // Get block render manager and block entity render dispatcher
         BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
+        BlockEntityRenderDispatcher blockEntityRenderDispatcher = MinecraftClient.getInstance().getBlockEntityRenderDispatcher();
         
         // Render each block type with its specific color
         for (Map.Entry<Identifier, Set<BlockPos>> entry : blocksByType.entrySet()) {
@@ -75,8 +78,15 @@ public class BlockSelectionOutlineRenderer {
                         pos.getZ() - cameraPos.z
                     );
                     
-                    // Render the block with invisible faces but preserve outline capability
-                    renderInvisibleBlock(state, pos, matrices, outlineProvider, blockRenderManager, world);
+                    // Check if this is a block entity
+                    BlockEntity blockEntity = world.getBlockEntity(pos);
+                    if (blockEntity != null) {
+                        // Render block entity using proper block entity methods
+                        renderBlockEntityOutline(blockEntity, matrices, outlineProvider, blockEntityRenderDispatcher);
+                    } else {
+                        // Render regular block with invisible faces but preserve outline capability
+                        renderInvisibleBlock(state, pos, matrices, outlineProvider, blockRenderManager, world);
+                    }
                     
                     matrices.pop();
                 }
@@ -85,6 +95,18 @@ public class BlockSelectionOutlineRenderer {
             // Draw all buffered outline vertices for this color
             outlineProvider.draw();
         }
+    }
+    
+    // Render block entity outline using proper block entity methods
+    private static void renderBlockEntityOutline(
+        BlockEntity blockEntity,
+        MatrixStack matrices,
+        OutlineVertexConsumerProvider outlineProvider,
+        BlockEntityRenderDispatcher blockEntityRenderDispatcher
+    ) {
+        // Render the block entity using the dispatcher - this will properly handle
+        // block entity rendering and outline generation
+        blockEntityRenderDispatcher.render(blockEntity, 0.0f, matrices, outlineProvider);
     }
     
     // Render invisible block method for outline rendering
