@@ -74,8 +74,11 @@ public class ModConfigScreen extends Screen {
     // Color picker
     private ColorPickerWidget colorPicker;
     
-    // Toggle button
+    // Toggle buttons
     private ButtonWidget toggleButton;
+    private ButtonWidget toggleItemsButton;
+    private ButtonWidget toggleEntitiesButton;
+    private ButtonWidget toggleBlocksButton;
     
     public ModConfigScreen(Screen parent) {
         super(Text.literal("More Outlines Configuration"));
@@ -97,8 +100,8 @@ public class ModConfigScreen extends Screen {
         this.searchField.setUneditableColor(0xFFCCCCCC); // Light gray when not focused
         this.addSelectableChild(this.searchField);
         
-        // Initialize color picker - positioned in middle of selection panel
-        this.colorPicker = new ColorPickerWidget(guiLeft + 255, guiTop + HEADER_HEIGHT + 80, this::onColorChanged);
+        // Initialize color picker - positioned below the individual selection display
+        this.colorPicker = new ColorPickerWidget(guiLeft + 255, guiTop + HEADER_HEIGHT + 125, this::onColorChanged);
         
         // Initialize toggle button (positioned at top right of selection panel)
         int panelX = guiLeft + 250;
@@ -110,11 +113,36 @@ public class ModConfigScreen extends Screen {
             .build();
         this.addDrawableChild(this.toggleButton);
         
+        // Add tab-specific toggle buttons
+        this.toggleItemsButton = ButtonWidget.builder(
+            Text.literal("Items: " + (ModConfig.INSTANCE.itemOutlines ? "ON" : "OFF")),
+            button -> toggleItemsOverlay())
+            .dimensions(panelX + 5, panelY + 30, 80, 18)
+            .build();
+        this.addDrawableChild(this.toggleItemsButton);
+        
+        this.toggleEntitiesButton = ButtonWidget.builder(
+            Text.literal("Entities: " + (ModConfig.INSTANCE.entityOutlines ? "ON" : "OFF")),
+            button -> toggleEntitiesOverlay())
+            .dimensions(panelX + 90, panelY + 30, 80, 18)
+            .build();
+        this.addDrawableChild(this.toggleEntitiesButton);
+        
+        this.toggleBlocksButton = ButtonWidget.builder(
+            Text.literal("Blocks: " + (ModConfig.INSTANCE.blockOutlines ? "ON" : "OFF")),
+            button -> toggleBlocksOverlay())
+            .dimensions(panelX + 5, panelY + 55, 80, 18)
+            .build();
+        this.addDrawableChild(this.toggleBlocksButton);
+        
         // Initialize tabs
         initializeTabs();
         
         // Initialize item lists
         updateFilteredLists();
+        
+        // Update button texts to reflect current config state
+        updateToggleButtonTexts();
         
         // Add close button
         this.addDrawableChild(ButtonWidget.builder(
@@ -156,6 +184,7 @@ public class ModConfigScreen extends Screen {
         // Reinitialize to update tab display
         this.clearChildren();
         this.init();
+        updateToggleButtonTexts();
     }
     
     private void onSearchChanged(String searchText) {
@@ -384,25 +413,36 @@ public class ModConfigScreen extends Screen {
         // Render panel title
         context.drawText(this.textRenderer, "Selection Panel", panelX + 5, panelY + 5, 0xFFFFFFFF, false);
         
+        // Add section label
+        context.drawText(this.textRenderer, "Category Toggles:", panelX + 5, panelY + 18, 0xFFCCCCCC, false);
+        
         Identifier currentSelection = getCurrentSelection();
         if (currentSelection != null) {
             String name = currentSelection.toString();
-            context.drawText(this.textRenderer, "Selected:", panelX + 5, panelY + 20, 0xFFFFFFFF, false);
-            context.drawText(this.textRenderer, name, panelX + 5, panelY + 35, 0xFFCCCCCC, false);
+            context.drawText(this.textRenderer, "Selected: " + name, panelX + 5, panelY + 80, 0xFFFFFFFF, false);
             
             // Update toggle button text
             boolean isEnabled = isCurrentSelectionEnabled();
             toggleButton.setMessage(Text.literal("Outline: " + (isEnabled ? "ON" : "OFF")));
         } else {
             toggleButton.setMessage(Text.literal("Outline: OFF"));
-            context.drawText(this.textRenderer, "Click an item", panelX + 5, panelY + 20, 0xFF888888, false);
-            context.drawText(this.textRenderer, "to configure", panelX + 5, panelY + 35, 0xFF888888, false);
-            context.drawText(this.textRenderer, "its outline", panelX + 5, panelY + 50, 0xFF888888, false);
+            context.drawText(this.textRenderer, "Click an item", panelX + 5, panelY + 80, 0xFF888888, false);
+            context.drawText(this.textRenderer, "to configure", panelX + 5, panelY + 95, 0xFF888888, false);
+            context.drawText(this.textRenderer, "its outline", panelX + 5, panelY + 110, 0xFF888888, false);
         }
         
-        // Force render toggle button manually
+        // Force render toggle buttons manually
         if (toggleButton != null) {
             toggleButton.render(context, mouseX, mouseY, delta);
+        }
+        if (toggleItemsButton != null) {
+            toggleItemsButton.render(context, mouseX, mouseY, delta);
+        }
+        if (toggleEntitiesButton != null) {
+            toggleEntitiesButton.render(context, mouseX, mouseY, delta);
+        }
+        if (toggleBlocksButton != null) {
+            toggleBlocksButton.render(context, mouseX, mouseY, delta);
         }
         
         // Render color picker
@@ -455,10 +495,46 @@ public class ModConfigScreen extends Screen {
         }
     }
     
+    private void toggleItemsOverlay() {
+        ModConfig.INSTANCE.toggleItemOutlines();
+        updateToggleButtonTexts();
+    }
+    
+    private void toggleEntitiesOverlay() {
+        ModConfig.INSTANCE.toggleEntityOutlines();
+        updateToggleButtonTexts();
+    }
+    
+    private void toggleBlocksOverlay() {
+        ModConfig.INSTANCE.toggleBlockOutlines();
+        updateToggleButtonTexts();
+    }
+    
+    private void updateToggleButtonTexts() {
+        if (toggleItemsButton != null) {
+            toggleItemsButton.setMessage(Text.literal("Items: " + (ModConfig.INSTANCE.itemOutlines ? "ON" : "OFF")));
+        }
+        if (toggleEntitiesButton != null) {
+            toggleEntitiesButton.setMessage(Text.literal("Entities: " + (ModConfig.INSTANCE.entityOutlines ? "ON" : "OFF")));
+        }
+        if (toggleBlocksButton != null) {
+            toggleBlocksButton.setMessage(Text.literal("Blocks: " + (ModConfig.INSTANCE.blockOutlines ? "ON" : "OFF")));
+        }
+    }
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Check toggle button first
+        // Check toggle buttons first
         if (toggleButton != null && toggleButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (toggleItemsButton != null && toggleItemsButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (toggleEntitiesButton != null && toggleEntitiesButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (toggleBlocksButton != null && toggleBlocksButton.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
         

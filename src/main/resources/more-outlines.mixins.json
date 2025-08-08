@@ -8,7 +8,8 @@
 	"client": [
 		"EntityMixin",
 		"EntityRenderDispatcherMixin",
-		"WorldRendererMixin"
+		"WorldRendererMixin",
+		"InGameHudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
