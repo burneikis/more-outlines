@@ -57,21 +57,16 @@ public class ConfigUtil {
     /**
      * Creates a debug configuration object with current settings.
      */
+    @SuppressWarnings("unused") // Fields are used by Gson via reflection
     private static Object createDebugConfigObject() {
         ModConfig config = ModConfig.INSTANCE;
         
         return new Object() {
-            @SuppressWarnings("unused")
             public final boolean outlinesEnabled = config.outlinesEnabled;
-            @SuppressWarnings("unused")
             public final String defaultColorHex = String.format("#%08X", config.defaultColor);
-            @SuppressWarnings("unused")
             public final int selectedItemsCount = config.selectedItems.size();
-            @SuppressWarnings("unused")
             public final int selectedEntitiesCount = config.selectedEntities.size();
-            @SuppressWarnings("unused")
             public final int selectedBlocksCount = config.selectedBlocks.size();
-            @SuppressWarnings("unused")
             public final int totalSelectionsCount = selectedItemsCount + selectedEntitiesCount + selectedBlocksCount;
         };
     }
