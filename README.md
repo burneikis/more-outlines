@@ -37,7 +37,7 @@ A comprehensive Minecraft Fabric mod for Minecraft 1.21.8 that implements advanc
 - Fabric API 0.131.0+1.21.8
 - Minecraft 1.21.8
 - Java 21+
-- Fabric Loader 0.16.14
+- Fabric Loader 0.17.2
 
 ## Compatibility Notes
 

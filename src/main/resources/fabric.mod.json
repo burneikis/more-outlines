@@ -8,8 +8,8 @@
 		"MoreOutlines"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/burneikis/more-outlines",
+		"sources": "https://github.com/burneikis/more-outlines"
 	},
 	"license": "MIT",
 	"icon": "assets/more-outlines/icon.png",
@@ -26,7 +26,7 @@
 		"more-outlines.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.14",
+		"fabricloader": ">=0.17.2",
 		"minecraft": "~1.21.8",
 		"java": ">=21",
 		"fabric-api": "*"
