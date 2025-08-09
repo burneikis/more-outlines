@@ -382,3 +382,71 @@ This architecture provides:
 - **Extensibility**: Easy to add new outline types or features
 
 The mod integrates seamlessly with Minecraft's rendering pipeline while providing extensive customization options through its intuitive GUI.
+
+## Testing
+
+This mod includes test scripts to set up different server configurations for testing the permission system and mod functionality.
+
+### Test Scripts
+
+Navigate to the `test/` directory to find three test scripts:
+
+#### 1. **Vanilla Server** (`test-vanilla-server`)
+Sets up and runs a vanilla Fabric server without the More Outlines mod.
+```bash
+cd test
+./test-vanilla-server
+```
+- Use case: Testing compatibility and baseline performance
+- Expected behavior: Client shows "mod not allowed" message, outlines disabled
+- Server available at: `localhost:25565`
+
+#### 2. **Allowed Server** (`test-allowed-server`)
+Sets up and runs a server with the More Outlines mod installed and **allowed** by server configuration.
+```bash
+cd test
+./test-allowed-server
+```
+- Builds the mod automatically before server setup
+- Server config: `allowMoreOutlinesMod: true`
+- Expected behavior: Mod functions normally, outlines work as intended
+- Server available at: `localhost:25565`
+
+#### 3. **Blocked Server** (`test-blocked-server`)
+Sets up and runs a server with the More Outlines mod installed but **blocked** by server configuration.
+```bash
+cd test
+./test-blocked-server
+```
+- Builds the mod automatically before server setup  
+- Server config: `allowMoreOutlinesMod: false`
+- Expected behavior: Client shows "mod not allowed" message, outlines disabled
+- Server available at: `localhost:25565`
+
+### Testing Workflow
+
+1. **Start a test server:**
+   ```bash
+   ./test/test-allowed-server  # or test-blocked-server or test-vanilla-server
+   ```
+
+2. **Connect with client** (in a new terminal):
+   ```bash
+   ./gradlew runClient
+   ```
+
+3. **Join the server** in the Minecraft client:
+   - Multiplayer → Direct Connect → `localhost:25565`
+
+4. **Test mod functionality:**
+   - Press `O` to toggle outlines
+   - Press `Right Shift` to open mod configuration GUI
+   - Verify expected behavior based on server configuration
+
+### Notes
+
+- Each test server creates its own directory (e.g., `test/vanilla-server/`, `test/allowed-server/`)
+- Server files and downloads are automatically gitignored
+- All servers run on port `25565` (only one can run at a time)
+- Servers are configured for creative mode with peaceful difficulty for easy testing
+- Test servers require you to accept the EULA in terminal by typing `yes`

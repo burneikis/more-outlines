@@ -1,16 +1,26 @@
 #!/bin/bash
 
-# More Outlines Test Server Setup Script
-# This script sets up a Fabric server for testing the permission system
+# More Outlines Test - Blocked Server
+# Sets up and runs a server with the mod blocked for testing purposes
 
 set -e
 
-SERVER_DIR="test-server"
+SERVER_DIR="blocked-server"
 MINECRAFT_VERSION="1.21.8"
 FABRIC_VERSION="0.16.14"
 FABRIC_API_VERSION="0.131.0+1.21.8"
+MEMORY="2G"
 
-echo "🚀 Setting up More Outlines test server..."
+echo "🚫 Setting up server with More Outlines mod BLOCKED..."
+
+# Build the mod first
+echo "🔨 Building More Outlines mod..."
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
+./gradlew build
+cd "$SCRIPT_DIR"
 
 # Create server directory
 mkdir -p "$SERVER_DIR"
@@ -39,8 +49,8 @@ fi
 
 # Copy our mod to the server (main jar only, not sources)
 echo "📦 Copying More Outlines mod to server..."
-cp ../build/libs/more-outlines-1.0.0.jar mods/ 2>/dev/null || {
-    echo "❌ Mod jar not found! Please build the mod first with: ./gradlew build"
+cp "$PROJECT_DIR/build/libs/more-outlines-1.0.0.jar" mods/ 2>/dev/null || {
+    echo "❌ Mod jar not found! Build failed."
     exit 1
 }
 
@@ -55,7 +65,7 @@ enable-query=false
 generator-settings={}
 enforce-secure-profile=true
 level-name=world
-motd=More Outlines Test Server
+motd=More Outlines Test Server - BLOCKED
 query.port=25565
 pvp=true
 generate-structures=true
@@ -106,23 +116,37 @@ resource-pack-sha1=
 max-world-size=29999984
 EOF
 
-# Accept EULA
-echo "eula=true" > eula.txt
-
-# Create default server permission config (allowing mod)
+# Create server config to block mod
 mkdir -p config
 cat > config/more-outlines-server.json << EOF
 {
-  "allowMoreOutlinesMod": true,
-  "reason": "Test server allows More Outlines mod"
+  "allowMoreOutlinesMod": false,
+  "reason": "Test server blocks More Outlines mod for testing"
 }
 EOF
 
-echo "✅ Test server setup complete!"
+echo "🚫 Server with BLOCKED mod setup complete!"
 echo ""
-echo "📁 Server directory: $SERVER_DIR/"
-echo "🎮 To start the server: ./start-test-server.sh"
-echo "🚫 To test blocked permissions: ./test-blocked-permissions.sh"
-echo "✅ To test allowed permissions: ./test-allowed-permissions.sh"
+echo "📋 IMPORTANT: You must accept the Minecraft EULA to continue"
+echo "🔗 Please read the EULA at: https://aka.ms/MinecraftEULA"
+echo "📝 If you agree, type 'yes' to accept:"
+read -p "> " eula_response
 
-cd ..
+if [[ "$eula_response" != "yes" ]]; then
+    echo "❌ EULA not accepted. Exiting."
+    exit 1
+fi
+
+echo "eula=true" > eula.txt
+echo "✅ EULA accepted!"
+echo "🚀 Starting server with More Outlines mod BLOCKED..."
+echo "🎮 Server will be available on localhost:25565"
+echo "📝 Check logs in $SERVER_DIR/logs/"
+echo "🛑 Press Ctrl+C to stop the server"
+echo ""
+echo "🔗 In another terminal, run: ./gradlew runClient"
+echo "🎯 Then join localhost:25565 in the client"
+echo "🧪 Expected behavior: Client should show 'mod not allowed' message, outlines disabled"
+echo ""
+
+java -Xmx$MEMORY -Xms$MEMORY -jar fabric-server-launch.jar nogui
