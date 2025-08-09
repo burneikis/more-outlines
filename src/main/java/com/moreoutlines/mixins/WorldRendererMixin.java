@@ -1,7 +1,6 @@
 package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
-import com.moreoutlines.network.ServerPermissionManager;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.BlockSelectionScanner;
 import com.moreoutlines.util.ColorUtil;

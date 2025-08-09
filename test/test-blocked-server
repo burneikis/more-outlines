@@ -49,7 +49,7 @@ fi
 
 # Copy our mod to the server (main jar only, not sources)
 echo "📦 Copying More Outlines mod to server..."
-cp "$PROJECT_DIR/build/libs/more-outlines-1.0.0.jar" mods/ 2>/dev/null || {
+cp "$PROJECT_DIR/build/libs/"more-outlines-*[!sources].jar mods/ 2>/dev/null || {
     echo "❌ Mod jar not found! Build failed."
     exit 1
 }

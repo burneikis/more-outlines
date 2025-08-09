@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "more-outlines",
-	"version": "1.0.0",
+	"version": "${version}",
 	"name": "More Outlines",
 	"description": "Advanced outline rendering system for items, entities, block entities and blocks in Minecraft",
 	"authors": [
