@@ -2,11 +2,11 @@ package com.moreoutlines.config;
 
 import com.google.gson.*;
 import com.moreoutlines.MoreOutlines;
+import com.moreoutlines.util.GsonUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -21,10 +21,12 @@ public class ConfigManager {
     private static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
     private static final Path CONFIG_FILE = CONFIG_DIR.resolve(CONFIG_FILE_NAME);
     
-    private static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .registerTypeAdapter(Identifier.class, new IdentifierTypeAdapter())
-        .create();
+    // Use shared Gson instance
+    // private static final Gson GSON = new GsonBuilder()
+    //     .setPrettyPrinting()
+    //     .registerTypeAdapter(Identifier.class, new IdentifierTypeAdapter())
+    //     .create();
+    private static final Gson GSON = GsonUtil.GSON;
 
     /**
      * Loads configuration from file or creates default if file doesn't exist.
@@ -144,25 +146,5 @@ public class ConfigManager {
         public Map<Identifier, ModConfig.OutlineConfig> selectedItems = new HashMap<>();
         public Map<Identifier, ModConfig.OutlineConfig> selectedEntities = new HashMap<>();
         public Map<Identifier, ModConfig.OutlineConfig> selectedBlocks = new HashMap<>();
-    }
-
-    /**
-     * Custom Gson type adapter for Minecraft Identifier serialization.
-     */
-    private static class IdentifierTypeAdapter implements JsonSerializer<Identifier>, JsonDeserializer<Identifier> {
-        @Override
-        public JsonElement serialize(Identifier src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src.toString());
-        }
-
-        @Override
-        public Identifier deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
-                throws JsonParseException {
-            try {
-                return Identifier.of(json.getAsString());
-            } catch (Exception e) {
-                throw new JsonParseException("Invalid identifier: " + json.getAsString(), e);
-            }
-        }
     }
 }

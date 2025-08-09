@@ -24,14 +24,15 @@ public class EntityRenderDispatcherMixin {
         if (!ModConfig.INSTANCE.isOutlinesEnabled() || !entity.isGlowing()) {
             return;
         }
-        
+
         // Check if we have an outline vertex consumer provider
         if (!(vertexConsumers instanceof OutlineVertexConsumerProvider outlineProvider)) {
             return;
         }
-        
+
         int color = getEntityOutlineColor(entity);
         if (color != -1) {
+            // Use ColorUtil for extraction and setting
             ColorUtil.setOutlineColor(outlineProvider, color);
         }
     }

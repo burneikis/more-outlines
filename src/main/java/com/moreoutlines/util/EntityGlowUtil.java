@@ -26,35 +26,33 @@ public class EntityGlowUtil {
             }
             return null; // No override needed
         }
-        
-        // Handle item entities
+        Boolean configResult = getEntityOrItemConfigSelected(entity);
+        return configResult;
+    }
+
+    /**
+     * Checks if an entity has any configuration entry (for determining override behavior).
+     */
+    public static boolean hasEntityConfiguration(Entity entity) {
+        return getEntityOrItemConfigSelected(entity) != null;
+    }
+
+    /**
+     * Returns true/false if entity/item is selected in config, null if not present.
+     */
+    private static Boolean getEntityOrItemConfigSelected(Entity entity) {
         if (entity instanceof ItemEntity itemEntity) {
             Identifier itemId = Registries.ITEM.getId(itemEntity.getStack().getItem());
             if (ModConfig.INSTANCE.hasItemConfig(itemId)) {
                 return ModConfig.INSTANCE.isItemSelected(itemId);
             }
+        } else {
+            Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
+            if (ModConfig.INSTANCE.hasEntityConfig(entityId)) {
+                return ModConfig.INSTANCE.isEntitySelected(entityId);
+            }
         }
-        
-        // Handle other entities
-        Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
-        if (ModConfig.INSTANCE.hasEntityConfig(entityId)) {
-            return ModConfig.INSTANCE.isEntitySelected(entityId);
-        }
-        
-        return null; // No override needed
-    }
-    
-    /**
-     * Checks if an entity has any configuration entry (for determining override behavior).
-     */
-    public static boolean hasEntityConfiguration(Entity entity) {
-        if (entity instanceof ItemEntity itemEntity) {
-            Identifier itemId = Registries.ITEM.getId(itemEntity.getStack().getItem());
-            return ModConfig.INSTANCE.hasItemConfig(itemId);
-        }
-        
-        Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
-        return ModConfig.INSTANCE.hasEntityConfig(entityId);
+        return null;
     }
     
     /**

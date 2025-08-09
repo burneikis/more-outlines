@@ -1,9 +1,8 @@
 package com.moreoutlines.network;
 
 import com.moreoutlines.MoreOutlines;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.moreoutlines.util.GsonUtil;
 
 import java.io.File;
 import java.io.FileReader;
@@ -32,8 +31,7 @@ public class ServerPermissionConfig {
         }
 
         try (FileReader reader = new FileReader(configFile)) {
-            Gson gson = new Gson();
-            Config loadedConfig = gson.fromJson(reader, Config.class);
+            Config loadedConfig = GsonUtil.GSON.fromJson(reader, Config.class);
             if (loadedConfig != null) {
                 config = loadedConfig;
                 modAllowed = config.allowMoreOutlinesMod;
@@ -52,8 +50,7 @@ public class ServerPermissionConfig {
         }
 
         try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(config, writer);
+            GsonUtil.GSON.toJson(config, writer);
         } catch (IOException e) {
             MoreOutlines.LOGGER.error("Failed to save server permission config: {}", e.getMessage());
         }
