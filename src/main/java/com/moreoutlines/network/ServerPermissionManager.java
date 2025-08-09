@@ -16,6 +16,7 @@ public class ServerPermissionManager {
     }
     
     public static void setServerPermission(boolean allowed) {
+        boolean wasAlreadyReceived = serverPermissionReceived;
         serverPermissionReceived = true;
         serverAllowsMod = allowed;
         
@@ -23,7 +24,10 @@ public class ServerPermissionManager {
             MoreOutlines.LOGGER.info("Server allows More Outlines mod usage");
         } else {
             MoreOutlines.LOGGER.warn("Server blocks More Outlines mod usage");
-            showPermissionMessage();
+            // Only show message if this is the first time we're setting permission
+            if (!wasAlreadyReceived) {
+                showPermissionMessage();
+            }
         }
     }
     
