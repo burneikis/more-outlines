@@ -42,10 +42,10 @@ public class ModConfigScreen extends Screen {
         
         // Outlines enabled toggle button at top right
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.outlinesEnabled ? "ON" : "OFF")),
+                Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.isOutlinesEnabled() ? "ON" : "OFF")),
                 button -> {
                     com.moreoutlines.config.ModConfig.INSTANCE.toggleOutlinesEnabled();
-                    button.setMessage(Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.outlinesEnabled ? "ON" : "OFF")));
+                    button.setMessage(Text.literal("Outlines " + (com.moreoutlines.config.ModConfig.INSTANCE.isOutlinesEnabled() ? "ON" : "OFF")));
                 })
             .dimensions(this.width - 85, 6, 80, 20)
             .build());

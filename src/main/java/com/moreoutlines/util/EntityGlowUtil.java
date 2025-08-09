@@ -19,7 +19,7 @@ public class EntityGlowUtil {
      * @return true if the entity should glow, false if it should not glow, null if no override needed
      */
     public static Boolean shouldEntityGlow(Entity entity) {
-        if (!ModConfig.INSTANCE.outlinesEnabled) {
+        if (!ModConfig.INSTANCE.isOutlinesEnabled()) {
             // If outlines are globally disabled, check if this entity has config and force false
             if (hasEntityConfiguration(entity)) {
                 return false;
@@ -76,7 +76,7 @@ public class EntityGlowUtil {
      * Gets the expected outline color for an entity, or -1 if no outline should be applied.
      */
     public static int getEntityOutlineColor(Entity entity) {
-        if (!ModConfig.INSTANCE.outlinesEnabled) {
+        if (!ModConfig.INSTANCE.isOutlinesEnabled()) {
             return -1;
         }
         

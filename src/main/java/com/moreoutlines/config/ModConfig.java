@@ -1,5 +1,6 @@
 package com.moreoutlines.config;
 
+import com.moreoutlines.network.ServerPermissionManager;
 import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,13 @@ public class ModConfig {
         } catch (Exception e) {
             // Silently ignore if ConfigManager is not available (during early initialization)
         }
+    }
+    
+    /**
+     * Gets the effective outlines enabled state, considering both local setting and server permission.
+     */
+    public boolean isOutlinesEnabled() {
+        return outlinesEnabled && ServerPermissionManager.isModAllowed();
     }
     
     public void toggleOutlinesEnabled() {

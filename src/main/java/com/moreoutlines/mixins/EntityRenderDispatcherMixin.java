@@ -21,7 +21,7 @@ public class EntityRenderDispatcherMixin {
                                    float tickProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, 
                                    int light, CallbackInfo ci) {
         // Only set colors if outlines are enabled and the entity is glowing
-        if (!ModConfig.INSTANCE.outlinesEnabled || !entity.isGlowing()) {
+        if (!ModConfig.INSTANCE.isOutlinesEnabled() || !entity.isGlowing()) {
             return;
         }
         

@@ -1,6 +1,7 @@
 package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
+import com.moreoutlines.network.ServerPermissionManager;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.BlockSelectionScanner;
 import com.moreoutlines.util.ColorUtil;
@@ -39,7 +40,7 @@ public class WorldRendererMixin {
      * Checks if block outline rendering is active and has tracked blocks.
      */
     private boolean hasActiveBlockOutlines() {
-        return ModConfig.INSTANCE.outlinesEnabled 
+        return ModConfig.INSTANCE.isOutlinesEnabled() 
             && !ModConfig.INSTANCE.selectedBlocks.isEmpty() 
             && !BlockSelectionScanner.getInstance().getTrackedBlocksByType().isEmpty();
     }
@@ -52,7 +53,7 @@ public class WorldRendererMixin {
         dispatcher.render(blockEntity, tickProgress, matrices, vertexConsumers);
         
         // Only render outlines if enabled AND the specific block entity type is selected
-        if (ModConfig.INSTANCE.outlinesEnabled && blockEntity != null) {
+        if (ModConfig.INSTANCE.isOutlinesEnabled() && blockEntity != null) {
             // Get the block entity's block type
             Identifier blockId = Registries.BLOCK.getId(blockEntity.getCachedState().getBlock());
             

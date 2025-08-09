@@ -5,9 +5,12 @@ import com.moreoutlines.config.ConfigUtil;
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.gui.ModConfigScreen;
 import com.moreoutlines.keybinds.ModKeybinds;
+import com.moreoutlines.network.ClientNetworking;
+import com.moreoutlines.network.ServerPermissionManager;
 import com.moreoutlines.scanner.BlockSelectionScanner;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 
 /**
@@ -21,6 +24,12 @@ public class MoreOutlinesClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		instance = this;
+		
+		// Register networking first
+		ClientNetworking.registerClientPackets();
+		
+		// Register connection events
+		registerConnectionEvents();
 		
 		// Load configuration first
 		ConfigManager.loadConfig();
@@ -67,12 +76,29 @@ public class MoreOutlinesClient implements ClientModInitializer {
 	 * Handle block selection scanning.
 	 */
 	private void handleBlockScanning(MinecraftClient client) {
-		if (ModConfig.INSTANCE.outlinesEnabled && !ModConfig.INSTANCE.selectedBlocks.isEmpty()) {
+		if (ModConfig.INSTANCE.isOutlinesEnabled() && !ModConfig.INSTANCE.selectedBlocks.isEmpty()) {
 			BlockSelectionScanner.getInstance().tick(client);
 		} else {
-			// Clear tracked positions when disabled
+			// Clear tracked positions when disabled or not allowed
 			BlockSelectionScanner.getInstance().clearTrackedPositions();
 		}
+	}
+	
+	/**
+	 * Register connection events to handle server permission checks.
+	 */
+	private void registerConnectionEvents() {
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			// Request permission when joining a server
+			client.execute(() -> {
+				ServerPermissionManager.requestPermission();
+			});
+		});
+		
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			// Reset permission state when leaving server
+			ServerPermissionManager.reset();
+		});
 	}
 	
 	public static MoreOutlinesClient getInstance() {

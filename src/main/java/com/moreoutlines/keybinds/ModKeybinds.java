@@ -32,7 +32,7 @@ public class ModKeybinds {
     public static void handleKeyPress() {
         if (toggleAllOutlines.wasPressed()) {
             ModConfig.INSTANCE.toggleOutlinesEnabled();
-            String status = ModConfig.INSTANCE.outlinesEnabled ? "ON" : "OFF";
+            String status = ModConfig.INSTANCE.isOutlinesEnabled() ? "ON" : "OFF";
             ToggleNotificationHud.getInstance().showNotification("All Outlines: " + status);
         }
     }
