@@ -7,7 +7,6 @@ import net.minecraft.text.Text;
 public class ServerPermissionManager {
     private static boolean serverPermissionReceived = false;
     private static boolean serverAllowsMod = false; // Default: assume NOT allowed until told otherwise
-    private static String serverMessage = "";
     
     public static void requestPermission() {
         // Use ClientNetworking to avoid compilation issues
@@ -49,6 +48,5 @@ public class ServerPermissionManager {
     public static void reset() {
         serverPermissionReceived = false;
         serverAllowsMod = false; // Default back to not allowed
-        serverMessage = "";
     }
 }
