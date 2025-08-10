@@ -1,9 +1,10 @@
 package com.moreoutlines.gui.widgets;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+
 import java.util.function.IntConsumer;
 
 public class ColorPickerWidget extends ClickableWidget {
@@ -36,6 +37,44 @@ public class ColorPickerWidget extends ClickableWidget {
      */
     public int getCurrentColor() {
         return this.selectedColor;
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) { // Left click
+            int colorSize = 12;
+            int spacing = 16;
+            int startX = this.getX() + 5;
+            int startY = this.getY() + 20; // Match the rendering startY
+            
+            // Check if click is anywhere within widget bounds first
+            if (mouseX >= this.getX() && mouseX < this.getX() + this.width && 
+                mouseY >= this.getY() && mouseY < this.getY() + this.height) {
+                
+                // Check preset colors in 2x4 layout
+                for (int row = 0; row < 2; row++) {
+                    for (int col = 0; col < 4; col++) {
+                        int index = row * 4 + col;
+                        if (index < PRESET_COLORS.length) {
+                            int colorX = startX + col * spacing;
+                            int colorY = startY + row * spacing;
+                            
+                            if (mouseX >= colorX && mouseX < colorX + colorSize && 
+                                mouseY >= colorY && mouseY < colorY + colorSize) {
+                                this.selectedColor = PRESET_COLORS[index] | 0xFF000000;
+                                this.colorCallback.accept(this.selectedColor);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                
+                // If clicked within widget but not on a color, still consume the click
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     @Override
@@ -86,44 +125,6 @@ public class ColorPickerWidget extends ClickableWidget {
         context.drawText(MinecraftClient.getInstance().textRenderer, "Current:", currentColorX, startY - 15, 0xFFFFFFFF, false);
         context.fill(currentColorX, currentColorY, currentColorX + 24, currentColorY + 24, selectedColor | 0xFF000000);
         context.drawBorder(currentColorX - 1, currentColorY - 1, 26, 26, 0xFFFFFFFF);
-    }
-    
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) { // Left click
-            int colorSize = 12;
-            int spacing = 16;
-            int startX = this.getX() + 5;
-            int startY = this.getY() + 20; // Match the rendering startY
-            
-            // Check if click is anywhere within widget bounds first
-            if (mouseX >= this.getX() && mouseX < this.getX() + this.width && 
-                mouseY >= this.getY() && mouseY < this.getY() + this.height) {
-                
-                // Check preset colors in 2x4 layout
-                for (int row = 0; row < 2; row++) {
-                    for (int col = 0; col < 4; col++) {
-                        int index = row * 4 + col;
-                        if (index < PRESET_COLORS.length) {
-                            int colorX = startX + col * spacing;
-                            int colorY = startY + row * spacing;
-                            
-                            if (mouseX >= colorX && mouseX < colorX + colorSize && 
-                                mouseY >= colorY && mouseY < colorY + colorSize) {
-                                this.selectedColor = PRESET_COLORS[index] | 0xFF000000;
-                                this.colorCallback.accept(this.selectedColor);
-                                return true;
-                            }
-                        }
-                    }
-                }
-                
-                // If clicked within widget but not on a color, still consume the click
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     @Override
