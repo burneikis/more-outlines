@@ -1,7 +1,5 @@
 package com.moreoutlines.gui.widgets;
 
-import com.moreoutlines.util.ColorUtil;
-
 /**
  * List widget for More Outlines configuration.
  * Design inspired by ReEntityOutliner by Globox_Z
@@ -1062,7 +1060,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     
     private static String getColorName(int color) {
         for (int i = 0; i < COLORS.length; i++) {
-            if (COLORS[i] == (color & 0xFFFFFF)) {
+            if (COLORS[i] == color) {
                 return COLOR_NAMES[i];
             }
         }
@@ -1071,16 +1069,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     
     private static int getNextColor(int currentColor) {
         for (int i = 0; i < COLORS.length; i++) {
-            if (COLORS[i] == (currentColor & 0xFFFFFF)) {
-                return ColorUtil.createColor(
-                    ColorUtil.getRed(COLORS[(i + 1) % COLORS.length]),
-                    ColorUtil.getGreen(COLORS[(i + 1) % COLORS.length]),
-                    ColorUtil.getBlue(COLORS[(i + 1) % COLORS.length]),
-                    255
-                );
+            if (COLORS[i] == currentColor) {
+                return COLORS[(i + 1) % COLORS.length];
             }
         }
-        return ColorUtil.createColor(ColorUtil.getRed(COLORS[0]), ColorUtil.getGreen(COLORS[0]), ColorUtil.getBlue(COLORS[0]), 255);
+        return COLORS[0]; // Default to red
     }
     
     // Entity rendering helper method
