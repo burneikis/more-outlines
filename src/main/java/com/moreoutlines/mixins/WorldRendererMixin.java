@@ -3,6 +3,7 @@ package com.moreoutlines.mixins;
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.BlockSelectionScanner;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.command.OrderedRenderCommandQueueImpl;
 import net.minecraft.client.render.state.WorldRenderState;
@@ -19,6 +20,10 @@ public abstract class WorldRendererMixin {
 
     @Shadow
     private ClientWorld world;
+
+    @Shadow
+    @org.spongepowered.asm.mixin.Final
+    private BufferBuilderStorage bufferBuilders;
 
     @Shadow
     protected abstract boolean canDrawEntityOutlines();
@@ -58,7 +63,7 @@ public abstract class WorldRendererMixin {
             BlockSelectionOutlineRenderer.renderBlockSelectionOutlines(
                 matrices,
                 renderStates.cameraRenderState.pos,
-                queue,
+                this.bufferBuilders.getOutlineVertexConsumers(),
                 this.world,
                 scanner.getTrackedBlocksByType()
             );
