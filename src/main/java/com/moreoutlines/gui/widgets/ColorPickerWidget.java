@@ -40,7 +40,10 @@ public class ColorPickerWidget extends ClickableWidget {
     }
     
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+        double mouseX = click.x();
+        double mouseY = click.y();
+        int button = click.button();
         if (button == 0) { // Left click
             int colorSize = 12;
             int spacing = 16;
@@ -81,7 +84,7 @@ public class ColorPickerWidget extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         // Render color picker background
         context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF2D2D30);
-        context.drawBorder(this.getX(), this.getY(), this.width, this.height, 0xFF555555);
+        com.moreoutlines.util.RenderUtil.drawBorder(context, this.getX(), this.getY(), this.width, this.height, 0xFF555555);
         
         // Render title
         context.drawText(MinecraftClient.getInstance().textRenderer, "Colors:", this.getX() + 5, this.getY() + 3, 0xFFFFFFFF, false);
@@ -105,14 +108,14 @@ public class ColorPickerWidget extends ClickableWidget {
                     
                     // Render selection border
                     if ((selectedColor & 0xFFFFFF) == (PRESET_COLORS[index] & 0xFFFFFF)) {
-                        context.drawBorder(colorX - 1, colorY - 1, colorSize + 2, colorSize + 2, 0xFFFFFFFF);
+                        com.moreoutlines.util.RenderUtil.drawBorder(context, colorX - 1, colorY - 1, colorSize + 2, colorSize + 2, 0xFFFFFFFF);
                     }
                     
                     // Handle hover
                     if (mouseX >= colorX && mouseX < colorX + colorSize && 
                         mouseY >= colorY && mouseY < colorY + colorSize) {
                         if (this.isHovered() && this.isMouseOver(mouseX, mouseY)) {
-                            context.drawBorder(colorX - 1, colorY - 1, colorSize + 2, colorSize + 2, 0xFFCCCCCC);
+                            com.moreoutlines.util.RenderUtil.drawBorder(context, colorX - 1, colorY - 1, colorSize + 2, colorSize + 2, 0xFFCCCCCC);
                         }
                     }
                 }
@@ -124,7 +127,7 @@ public class ColorPickerWidget extends ClickableWidget {
         int currentColorY = startY;
         context.drawText(MinecraftClient.getInstance().textRenderer, "Current:", currentColorX, startY - 15, 0xFFFFFFFF, false);
         context.fill(currentColorX, currentColorY, currentColorX + 24, currentColorY + 24, selectedColor | 0xFF000000);
-        context.drawBorder(currentColorX - 1, currentColorY - 1, 26, 26, 0xFFFFFFFF);
+        com.moreoutlines.util.RenderUtil.drawBorder(context, currentColorX - 1, currentColorY - 1, 26, 26, 0xFFFFFFFF);
     }
     
     @Override

@@ -1,43 +1,39 @@
 package com.moreoutlines.mixins;
 
 import com.moreoutlines.config.ModConfig;
-import com.moreoutlines.util.ColorUtil;
 import com.moreoutlines.util.EntityGlowUtil;
-import net.minecraft.client.render.OutlineVertexConsumerProvider;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EntityRenderDispatcher.class)
+/**
+ * In 1.21.9+ entity rendering is driven by render states. The outline color
+ * is stored on {@link EntityRenderState#outlineColor} during
+ * {@code updateRenderState}. We hook the tail of that method to apply our
+ * custom per-entity / per-item outline colors.
+ */
+@Mixin(EntityRenderer.class)
 public class EntityRenderDispatcherMixin {
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void onRenderEntityHead(Entity entity, double x, double y, double z, 
-                                   float tickProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, 
-                                   int light, CallbackInfo ci) {
-        // Only set colors if outlines are enabled and the entity is glowing
-        if (!ModConfig.INSTANCE.isOutlinesEnabled() || !entity.isGlowing()) {
+    @Inject(method = "updateRenderState", at = @At("TAIL"))
+    private void onUpdateRenderState(Entity entity, EntityRenderState state, float tickProgress, CallbackInfo ci) {
+        if (!ModConfig.INSTANCE.isOutlinesEnabled()) {
             return;
         }
 
-        // Check if we have an outline vertex consumer provider
-        if (!(vertexConsumers instanceof OutlineVertexConsumerProvider outlineProvider)) {
+        // Only override when the entity is actually outlined (glowing).
+        if (state.outlineColor == 0) {
             return;
         }
 
-        int color = getEntityOutlineColor(entity);
+        int color = EntityGlowUtil.getEntityOutlineColor(entity);
         if (color != -1) {
-            // Use ColorUtil for extraction and setting
-            ColorUtil.setOutlineColor(outlineProvider, color);
+            state.outlineColor = ColorHelper.fullAlpha(color);
         }
-    }
-    
-    private int getEntityOutlineColor(Entity entity) {
-        return EntityGlowUtil.getEntityOutlineColor(entity);
     }
 }

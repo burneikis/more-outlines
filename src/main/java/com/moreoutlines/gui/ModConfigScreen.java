@@ -131,35 +131,37 @@ public class ModConfigScreen extends Screen {
     }
     
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
         // Let the list handle arrow keys first
-        if (list != null && list.keyPressed(keyCode, scanCode, modifiers)) {
+        if (list != null && list.keyPressed(input)) {
             return true;
         }
         // Then let the search field handle other keys
-        if (searchField != null && searchField.isFocused() && searchField.keyPressed(keyCode, scanCode, modifiers)) {
+        if (searchField != null && searchField.isFocused() && searchField.keyPressed(input)) {
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
     
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+        double mouseX = click.x();
+        double mouseY = click.y();
         // Check if clicking on the list area to focus it for keyboard navigation
         if (list != null && mouseX >= list.getX() && mouseX < list.getX() + list.getWidth() && 
             mouseY >= list.getY() && mouseY < list.getY() + list.getHeight()) {
             this.setFocused(list);
-            return list.mouseClicked(mouseX, mouseY, button);
+            return list.mouseClicked(click, doubled);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(click, doubled);
     }
     
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    public boolean mouseDragged(net.minecraft.client.gui.Click click, double offsetX, double offsetY) {
         if (list != null) {
-            return list.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+            return list.mouseDragged(click, offsetX, offsetY);
         }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        return super.mouseDragged(click, offsetX, offsetY);
     }
     
     @Override

@@ -1,6 +1,6 @@
 # More Outlines
 
-A comprehensive Minecraft Fabric mod for Minecraft 1.21.8 that implements advanced outline rendering for various game objects including items, entities, block entities, and blocks.
+A comprehensive Minecraft Fabric mod for Minecraft 1.21.11 that implements advanced outline rendering for various game objects including items, entities, block entities, and blocks.
 
 
 ![Demo of glowing entities](https://cdn.modrinth.com/data/cached_images/62a07212226ed3596315f12cdc31e83361293a5e_0.webp)
@@ -34,8 +34,8 @@ A comprehensive Minecraft Fabric mod for Minecraft 1.21.8 that implements advanc
 
 ### Dependencies
 
-- Fabric API 0.131.0+1.21.8
-- Minecraft 1.21.8
+- Fabric API 0.141.4+1.21.11
+- Minecraft 1.21.11
 - Java 21+
 - Fabric Loader 0.17.2
 

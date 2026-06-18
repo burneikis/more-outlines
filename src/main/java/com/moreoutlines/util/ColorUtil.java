@@ -28,7 +28,7 @@ public final class ColorUtil {
             alpha = 255;
         }
         
-        outlineProvider.setColor(red, green, blue, alpha);
+        outlineProvider.setColor((alpha << 24) | (red << 16) | (green << 8) | blue);
     }
     
     /**

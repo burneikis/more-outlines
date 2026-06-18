@@ -314,7 +314,8 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
     }
     
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
+        int keyCode = input.key();
         // Handle up and down arrow keys for navigation
         if (keyCode == 264) { // Down arrow
             this.moveSelection(1);
@@ -323,7 +324,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             this.moveSelection(-1);
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
     
     private void moveSelection(int direction) {
@@ -344,7 +345,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         this.setSelected(this.children().get(newIndex));
-        this.ensureVisible(this.children().get(newIndex));
+        this.scrollTo(this.children().get(newIndex));
     }
     
         @Override
@@ -395,7 +396,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            int x = this.getX();
+            int y = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
             net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
             int textWidth = minecraft.textRenderer.getWidth(title);
             int textX = x + (entryWidth - textWidth) / 2;
@@ -405,7 +410,10 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+            double mouseX = click.x();
+            double mouseY = click.y();
+            int button = click.button();
             return false;
         }
         
@@ -432,7 +440,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            int x = this.getX();
+            int y = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
             net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
             
             // Draw item icon
@@ -445,7 +457,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             
             // Draw checkbox background
             context.fill(checkboxX, checkboxY, checkboxX + checkboxSize, checkboxY + checkboxSize, selected ? 0xFF4CAF50 : 0xFF333333);
-            context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
+            com.moreoutlines.util.RenderUtil.drawBorder(context, checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
                 // Draw checkmark - centered in checkbox
@@ -473,13 +485,16 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                 int colorHeight = 16;
                 
                 context.fill(colorX, colorY, colorX + colorWidth, colorY + colorHeight, 0xFF444444);
-                context.drawBorder(colorX, colorY, colorWidth, colorHeight, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, colorX, colorY, colorWidth, colorHeight, 0xFF666666);
                 context.drawCenteredTextWithShadow(minecraft.textRenderer, colorText, colorX + colorWidth / 2, colorY + 4, color);
             }
         }
         
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+            double mouseX = click.x();
+            double mouseY = click.y();
+            int button = click.button();
             Identifier itemId = Registries.ITEM.getId(item);
             
             // Check if clicking on color widget (rough approximation)
@@ -528,7 +543,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            int x = this.getX();
+            int y = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
             net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
             
             // Draw checkbox
@@ -537,7 +556,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             int checkboxY = y + 2;
             
             context.fill(checkboxX, checkboxY, checkboxX + checkboxSize, checkboxY + checkboxSize, selected ? 0xFF4CAF50 : 0xFF333333);
-            context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
+            com.moreoutlines.util.RenderUtil.drawBorder(context, checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
                 // Draw checkmark - centered in checkbox
@@ -565,13 +584,16 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                 int colorHeight = 16;
                 
                 context.fill(colorX, colorY, colorX + colorWidth, colorY + colorHeight, 0xFF444444);
-                context.drawBorder(colorX, colorY, colorWidth, colorHeight, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, colorX, colorY, colorWidth, colorHeight, 0xFF666666);
                 context.drawCenteredTextWithShadow(minecraft.textRenderer, colorText, colorX + colorWidth / 2, colorY + 4, color);
             }
         }
         
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+            double mouseX = click.x();
+            double mouseY = click.y();
+            int button = click.button();
             Identifier entityId = Registries.ENTITY_TYPE.getId(entityType);
             
             // Check if clicking on color widget (rough approximation)
@@ -620,7 +642,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            int x = this.getX();
+            int y = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
             net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
             
             // Draw block icon
@@ -632,7 +658,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             int checkboxY = y + 2;
             
             context.fill(checkboxX, checkboxY, checkboxX + checkboxSize, checkboxY + checkboxSize, selected ? 0xFF4CAF50 : 0xFF333333);
-            context.drawBorder(checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
+            com.moreoutlines.util.RenderUtil.drawBorder(context, checkboxX, checkboxY, checkboxSize, checkboxSize, 0xFF666666);
             
             if (selected) {
                 // Draw checkmark - centered in checkbox
@@ -660,13 +686,16 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
                 int colorHeight = 16;
                 
                 context.fill(colorX, colorY, colorX + colorWidth, colorY + colorHeight, 0xFF444444);
-                context.drawBorder(colorX, colorY, colorWidth, colorHeight, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, colorX, colorY, colorWidth, colorHeight, 0xFF666666);
                 context.drawCenteredTextWithShadow(minecraft.textRenderer, colorText, colorX + colorWidth / 2, colorY + 4, color);
             }
         }
         
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+            double mouseX = click.x();
+            double mouseY = click.y();
+            int button = click.button();
             Identifier blockId = Registries.BLOCK.getId(block);
             
             // Check if clicking on color widget (rough approximation)
@@ -766,7 +795,11 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            int x = this.getX();
+            int y = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
             net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();
             
             int currentX = x + 2;
@@ -803,7 +836,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             if (unifiedEntry.hasItem()) {
                 this.itemCheckboxX = currentX; // Store item checkbox X position
                 context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, itemSelected ? 0xFF4CAF50 : 0xFF333333);
-                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
                 
                 if (itemSelected) {
                     String checkmark = "✓";
@@ -820,7 +853,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             if (unifiedEntry.hasBlock()) {
                 this.blockCheckboxX = currentX; // Store block checkbox X position
                 context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, blockSelected ? 0xFF4CAF50 : 0xFF333333);
-                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
                 
                 if (blockSelected) {
                     String checkmark = "✓";
@@ -837,7 +870,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             if (unifiedEntry.hasEntity()) {
                 this.entityCheckboxX = currentX; // Store entity checkbox X position
                 context.fill(currentX, y + 2, currentX + checkboxSize, y + 2 + checkboxSize, entitySelected ? 0xFF4CAF50 : 0xFF333333);
-                context.drawBorder(currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
+                com.moreoutlines.util.RenderUtil.drawBorder(context, currentX, y + 2, checkboxSize, checkboxSize, 0xFF666666);
                 
                 if (entitySelected) {
                     String checkmark = "✓";
@@ -864,7 +897,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
             int colorHeight = 16;
             
             context.fill(x, y, x + colorWidth, y + colorHeight, 0xFF444444);
-            context.drawBorder(x, y, colorWidth, colorHeight, 0xFF666666);
+            com.moreoutlines.util.RenderUtil.drawBorder(context, x, y, colorWidth, colorHeight, 0xFF666666);
             context.drawCenteredTextWithShadow(minecraft.textRenderer, getColorName(color), x + colorWidth / 2, y + 4, color);
         }
         
@@ -883,7 +916,10 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         }
         
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubled) {
+            double mouseX = click.x();
+            double mouseY = click.y();
+            int button = click.button();
             // Use absolute coordinates with stored positions from render method
             int checkboxSize = 16;
             
@@ -1086,7 +1122,7 @@ public class OutlineListWidget extends AlwaysSelectedEntryListWidget<OutlineList
         // Draw a simple placeholder icon for entities
         // Fill with a semi-transparent background
         context.fill(x, y, x + size, y + size, 0x80404040);
-        context.drawBorder(x, y, size, size, 0xFF666666);
+        com.moreoutlines.util.RenderUtil.drawBorder(context, x, y, size, size, 0xFF666666);
         
         // Draw a simple "E" for Entity in the center
         net.minecraft.client.MinecraftClient minecraft = net.minecraft.client.MinecraftClient.getInstance();

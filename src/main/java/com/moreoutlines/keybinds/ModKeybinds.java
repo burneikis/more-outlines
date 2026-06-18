@@ -5,10 +5,12 @@ import com.moreoutlines.gui.ToggleNotificationHud;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class ModKeybinds {
-    public static final String KEY_CATEGORY_MORE_OUTLINES = "key.category.more-outlines";
+    public static final KeyBinding.Category KEY_CATEGORY_MORE_OUTLINES =
+        KeyBinding.Category.create(Identifier.of("more-outlines", "main"));
     
     public static KeyBinding openConfigGui;
     public static KeyBinding toggleAllOutlines;
