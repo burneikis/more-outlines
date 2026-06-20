@@ -2,16 +2,12 @@ package com.moreoutlines.renderer;
 
 import com.moreoutlines.config.ModConfig;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.render.block.entity.LoadedBlockEntityModels;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
@@ -29,11 +25,10 @@ import java.util.Set;
  * to the outline framebuffer without producing a flickering visible duplicate
  * on top of the terrain.
  *
- * <p>Block entities (chests, signs, beds, shulker boxes, ...) have empty
- * block-state models; their visuals come from special model renderers which can
- * only be driven through the render command queue. For those we re-submit the
- * special model with an outline color. Because this re-uses the exact same
- * geometry the vanilla block-entity pass draws, there is no z-fighting.
+ * <p>Block entities (chests, signs, beds, ...) have empty block-state models;
+ * their outlines are handled separately by tagging their normal render with an
+ * outline color (see {@code OutlineColorContext} and the command-queue mixin),
+ * so they are not handled here.
  */
 public class BlockSelectionOutlineRenderer {
 
@@ -41,7 +36,6 @@ public class BlockSelectionOutlineRenderer {
         MatrixStack matrices,
         Vec3d cameraPos,
         OutlineVertexConsumerProvider outlineConsumers,
-        OrderedRenderCommandQueue queue,
         World world,
         Map<Identifier, Set<BlockPos>> blocksByType
     ) {
@@ -51,7 +45,6 @@ public class BlockSelectionOutlineRenderer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         BlockRenderManager blockRenderManager = client.getBlockRenderManager();
-        LoadedBlockEntityModels blockEntityModels = client.getBakedModelManager().getBlockEntityModelsSupplier();
 
         for (Map.Entry<Identifier, Set<BlockPos>> entry : blocksByType.entrySet()) {
             Identifier blockId = entry.getKey();
@@ -85,21 +78,6 @@ public class BlockSelectionOutlineRenderer {
                     LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV
                 );
-
-                // Block entity special model (e.g. chest, sign) -> via the queue
-                // with an outline color so it reaches the outline framebuffer.
-                BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity != null) {
-                    blockEntityModels.render(
-                        state.getBlock(),
-                        ItemDisplayContext.NONE,
-                        matrices,
-                        queue,
-                        LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                        OverlayTexture.DEFAULT_UV,
-                        outlineColor
-                    );
-                }
 
                 matrices.pop();
             }

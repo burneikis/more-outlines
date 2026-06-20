@@ -3,16 +3,25 @@ package com.moreoutlines.mixins;
 import com.moreoutlines.config.ModConfig;
 import com.moreoutlines.renderer.BlockSelectionOutlineRenderer;
 import com.moreoutlines.scanner.BlockSelectionScanner;
+import com.moreoutlines.util.OutlineColorContext;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderManager;
+import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.command.OrderedRenderCommandQueueImpl;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.render.state.WorldRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldRenderer.class)
@@ -64,10 +73,40 @@ public abstract class WorldRendererMixin {
                 matrices,
                 renderStates.cameraRenderState.pos,
                 this.bufferBuilders.getOutlineVertexConsumers(),
-                queue,
                 this.world,
                 scanner.getTrackedBlocksByType()
             );
+        }
+    }
+
+    /**
+     * Wrap each block entity render so that, if its block type is selected, the
+     * geometry it submits is tagged with our outline color. This makes the
+     * single live render also populate the outline framebuffer (correct pose,
+     * no duplicate draw).
+     */
+    @Redirect(method = "renderBlockEntities", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/render/block/entity/BlockEntityRenderManager;render(Lnet/minecraft/client/render/block/entity/state/BlockEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V"))
+    private void wrapBlockEntityRender(BlockEntityRenderManager manager,
+            BlockEntityRenderState state, MatrixStack matrices,
+            OrderedRenderCommandQueue queue, CameraRenderState cameraRenderState) {
+        int color = 0;
+        if (hasActiveBlockOutlines()) {
+            Identifier blockId = Registries.BLOCK.getId(state.blockState.getBlock());
+            if (ModConfig.INSTANCE.isBlockSelected(blockId)) {
+                color = ColorHelper.fullAlpha(ModConfig.INSTANCE.getBlockColor(blockId));
+            }
+        }
+
+        if (color != 0) {
+            OutlineColorContext.set(color);
+            try {
+                manager.render(state, matrices, queue, cameraRenderState);
+            } finally {
+                OutlineColorContext.clear();
+            }
+        } else {
+            manager.render(state, matrices, queue, cameraRenderState);
         }
     }
 }
