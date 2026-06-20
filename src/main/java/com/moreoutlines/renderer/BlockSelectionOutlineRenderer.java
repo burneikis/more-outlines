@@ -2,12 +2,16 @@ package com.moreoutlines.renderer;
 
 import com.moreoutlines.config.ModConfig;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.block.BlockRenderManager;
+import net.minecraft.client.render.block.entity.LoadedBlockEntityModels;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
@@ -20,12 +24,16 @@ import java.util.Set;
 /**
  * Renders outlines for selected blocks (and block entities).
  *
- * <p>In 1.21.9+ the deferred render command queue's {@code submitBlock} draws
- * the model into <em>both</em> the visible buffer and the outline buffer,
- * producing a flickering duplicate on top of the real terrain block. To avoid
- * that, we render the block model directly into the
- * {@link OutlineVertexConsumerProvider} only, so it contributes the silhouette
- * to the outline framebuffer without any visible re-draw.
+ * <p>Regular (chunk-baked) blocks are rendered directly into the
+ * {@link OutlineVertexConsumerProvider} only, so they contribute a silhouette
+ * to the outline framebuffer without producing a flickering visible duplicate
+ * on top of the terrain.
+ *
+ * <p>Block entities (chests, signs, beds, shulker boxes, ...) have empty
+ * block-state models; their visuals come from special model renderers which can
+ * only be driven through the render command queue. For those we re-submit the
+ * special model with an outline color. Because this re-uses the exact same
+ * geometry the vanilla block-entity pass draws, there is no z-fighting.
  */
 public class BlockSelectionOutlineRenderer {
 
@@ -33,6 +41,7 @@ public class BlockSelectionOutlineRenderer {
         MatrixStack matrices,
         Vec3d cameraPos,
         OutlineVertexConsumerProvider outlineConsumers,
+        OrderedRenderCommandQueue queue,
         World world,
         Map<Identifier, Set<BlockPos>> blocksByType
     ) {
@@ -40,7 +49,9 @@ public class BlockSelectionOutlineRenderer {
             return;
         }
 
-        BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
+        MinecraftClient client = MinecraftClient.getInstance();
+        BlockRenderManager blockRenderManager = client.getBlockRenderManager();
+        LoadedBlockEntityModels blockEntityModels = client.getBakedModelManager().getBlockEntityModelsSupplier();
 
         for (Map.Entry<Identifier, Set<BlockPos>> entry : blocksByType.entrySet()) {
             Identifier blockId = entry.getKey();
@@ -66,6 +77,7 @@ public class BlockSelectionOutlineRenderer {
                     pos.getZ() - cameraPos.z
                 );
 
+                // Block-state model silhouette (outline buffer only).
                 blockRenderManager.renderBlockAsEntity(
                     state,
                     matrices,
@@ -73,6 +85,21 @@ public class BlockSelectionOutlineRenderer {
                     LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV
                 );
+
+                // Block entity special model (e.g. chest, sign) -> via the queue
+                // with an outline color so it reaches the outline framebuffer.
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity != null) {
+                    blockEntityModels.render(
+                        state.getBlock(),
+                        ItemDisplayContext.NONE,
+                        matrices,
+                        queue,
+                        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                        OverlayTexture.DEFAULT_UV,
+                        outlineColor
+                    );
+                }
 
                 matrices.pop();
             }

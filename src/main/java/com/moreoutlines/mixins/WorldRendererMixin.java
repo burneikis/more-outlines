@@ -64,6 +64,7 @@ public abstract class WorldRendererMixin {
                 matrices,
                 renderStates.cameraRenderState.pos,
                 this.bufferBuilders.getOutlineVertexConsumers(),
+                queue,
                 this.world,
                 scanner.getTrackedBlocksByType()
             );
